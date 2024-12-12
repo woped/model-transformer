@@ -19,7 +19,7 @@ pip==24.1.2
 pluggy==1.5.0
 pytest==8.2.2
 requests==2.32.3
-ruff==0.5.1
+ruff==0.5.3
 setuptools==70.2.0
 urllib3==2.2.2
 watchdog==4.0.1
