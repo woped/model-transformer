@@ -105,7 +105,7 @@ jobs:
       # Deploy Canary Function
       - id: "deploy"
         name: "Deploy Canary Function"
-        uses: "google-github-actions/deploy-cloud-functions@v2"
+        uses: "google-github-actions/deploy-cloud-functions@v3"
         with:
           name: ${{ env.CANARY_FUNCTION_NAME }}
           entry_point: ${{ matrix.function.entry_point }}
