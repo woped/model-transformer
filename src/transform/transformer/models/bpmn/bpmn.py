@@ -32,7 +32,6 @@ from transformer.utility.utility import create_arc_name, get_tag_name
 supported_elements = {
     "exclusiveGateway",
     "parallelGateway",
-    "inclusiveGateway",
     "startEvent",
     "endEvent",
     "messageEventDefinition",
@@ -82,8 +81,6 @@ class AndGateway(Gateway, tag="parallelGateway"):
     """AND extension of gateways."""
 
 
-class OrGateway(Gateway, tag="inclusiveGateway"):
-    """OR extension of gateways."""
 
 
 # Events
