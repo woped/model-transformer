@@ -228,6 +228,9 @@ class Process(GenericBPMNNode):
         super().__init__(**data)
         self._init_reference_structures()
 
+        if len(self.or_gws) > 0:
+            raise NotSupportedBPMNElement("inclusiveGateway")
+
     def _init_reference_structures(self):
         """Instance initializer."""
         self._type_map = cast(
@@ -464,7 +467,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
             tree = fromstring(xml_content)
             used_tags: set[str] = set()
             for elem in tree.iter():
-                used_tags.add(get_tag_name(elem))
+                used_tags.add(get_tag_name(elem).lower())
             unhandled_tags = used_tags.difference(supported_tags)
             if len(unhandled_tags) > 0:
                 raise NotSupportedBPMNElement(str(unhandled_tags))
