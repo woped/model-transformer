@@ -84,6 +84,7 @@ def handle_transformation(request: flask.Request):
     if transform_direction == "bpmntopnml":
         bpmn_xml_content = request.form["bpmn"]
         bpmn = BPMN.from_xml(bpmn_xml_content)
+        # print(bpmn.to_string())
         transformed_pnml = bpmn_to_workflow_net(bpmn)
         response = jsonify({"pnml": clean_xml_string(transformed_pnml.to_string())})
         response.headers["Access-Control-Allow-Origin"] = "*"
