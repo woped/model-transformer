@@ -10,6 +10,7 @@ from exceptions import (
 )
 from transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from transformer.models.bpmn.bpmn import (
+    EventGateway,
     AndGateway,
     IntermediateCatchEvent,
     Process,
@@ -26,10 +27,7 @@ from transformer.models.pnml.pnml import (
 )
 from transformer.models.pnml.workflow import WorkflowBranchingType
 from transformer.utility.bpmn import find_end_events, find_start_events
-from transformer.utility.utility import (
-    create_arc_name, 
-    create_silent_node_name 
-)
+from transformer.utility.utility import create_arc_name, create_silent_node_name
 
 
 def create_workflow_operator_helper_transition(
@@ -170,6 +168,7 @@ def add_wf_and_split_join(
 type_map = {
     XorGateway: (add_wf_xor_split, add_wf_xor_join, add_wf_xor_split_join),
     AndGateway: (add_wf_and_split, add_wf_and_join, add_wf_and_split_join),
+    EventGateway: (add_wf_xor_split, add_wf_xor_join, add_wf_xor_split_join),
 }
 
 
@@ -191,7 +190,6 @@ def handle_gateway(net: Net, bpmn: Process, node: GenericBPMNNode):
     )
     for id in [*in_flows, *out_flows]:
         bpmn.remove_flow(id)
-
     net_sources = sorted(
         [cast(NetElement, net.get_element(x)) for x in source_ids], key=lambda x: x.id
     )
@@ -201,7 +199,6 @@ def handle_gateway(net: Net, bpmn: Process, node: GenericBPMNNode):
 
     if not node.name:
         node.name = ""
-
     # split
     if in_degree == 1:
         f_split(
