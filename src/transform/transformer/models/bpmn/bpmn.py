@@ -30,6 +30,7 @@ from transformer.models.bpmn.bpmn_graphics import (
 from transformer.utility.utility import create_arc_name, get_tag_name
 
 supported_elements = {
+    "eventbasedGateway",
     "exclusiveGateway",
     "parallelGateway",
     "inclusiveGateway",
@@ -74,6 +75,10 @@ supported_tags = {e.lower() for e in {*supported_elements, *ignored_elements}}
 
 
 # Gateways
+class EventGateway(Gateway, tag="eventBasedGateway"):
+    """EventbasedGateway extention of gateways."""
+
+
 class XorGateway(Gateway, tag="exclusiveGateway"):
     """XOR extension of gateways."""
 
@@ -204,6 +209,8 @@ class Process(GenericBPMNNode):
     xor_gws: set[XorGateway] = element(default_factory=set)
     or_gws: set[OrGateway] = element(default_factory=set)
     and_gws: set[AndGateway] = element(default_factory=set)
+    # Set für EventGateways hinzugefügt
+    event_gws: set[EventGateway] = element(default_factory=set)
 
     subprocesses: set["Process"] = element(default_factory=set, tag="subProcess")
 
@@ -244,6 +251,8 @@ class Process(GenericBPMNNode):
                 XorGateway: self.xor_gws,
                 OrGateway: self.or_gws,
                 AndGateway: self.and_gws,
+                # Erweitert um EventGateway
+                EventGateway: self.event_gws,
                 Process: self.subprocesses,
                 IntermediateCatchEvent: self.intermediatecatch_events,
                 GenericBPMNNode: set(),
@@ -469,6 +478,8 @@ class BPMN(BPMNNamespace, tag="definitions"):
             for elem in tree.iter():
                 used_tags.add(get_tag_name(elem).lower())
             unhandled_tags = used_tags.difference(supported_tags)
+            if "eventbasedgateway" in used_tags:
+                print("Hinweis: eventbasedgateway ist enthalten!")
             if len(unhandled_tags) > 0:
                 raise NotSupportedBPMNElement(str(unhandled_tags))
             return BPMN.from_xml_tree(tree)
