@@ -478,8 +478,6 @@ class BPMN(BPMNNamespace, tag="definitions"):
             for elem in tree.iter():
                 used_tags.add(get_tag_name(elem).lower())
             unhandled_tags = used_tags.difference(supported_tags)
-            if "eventbasedgateway" in used_tags:
-                print("Hinweis: eventbasedgateway ist enthalten!")
             if len(unhandled_tags) > 0:
                 raise NotSupportedBPMNElement(str(unhandled_tags))
             return BPMN.from_xml_tree(tree)

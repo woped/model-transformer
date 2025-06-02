@@ -27,7 +27,6 @@ def create_participant_mapping(bpmn: Process):
     """Find each resource name per UserTask (Also in subprocesses)."""
     if not bpmn.lane_sets:
         return
-
     # [lane_name; node_name]
     participant_mapping: dict[str, list[str]] = {}
     for lane_set in bpmn.lane_sets:
@@ -38,7 +37,6 @@ def create_participant_mapping(bpmn: Process):
                 if lane.name not in participant_mapping:
                     participant_mapping[lane.name] = []
                 participant_mapping[lane.name].append(node)
-
     # [node_name; lane_name]
     reverse_participant_mapping: dict[str, str] = {}
     for lane_name, nodes in participant_mapping.items():
