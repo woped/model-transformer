@@ -15,6 +15,8 @@ from transformer.models.bpmn.bpmn import (
     OrGateway,
     Process,
     StartEvent,
+    # Klasse ServiceTask aus bpmn importieren
+    ServiceTask,
     UserTask,
     XorGateway,
 )
@@ -149,12 +151,19 @@ def transform_bpmn_to_petrinet(
     # handle normals nodes
     for node in nodes:
         if isinstance(node, GenericTask | AndGateway | IntermediateCatchEvent):
+            # Name-Präfix für UserTask und ServiceTask
+            name = node.name
+            if isinstance(node, UserTask):
+                name = f"[UserTask] {node.name}"
+            elif isinstance(node, ServiceTask):
+                name = f"[ServiceTask] {node.name}"
+
             net.add_element(
                 Transition.create(
                     id=node.id,
                     name=(
-                        node.name
-                        if node.name != ""
+                        name
+                        if name != ""
                         or node.get_in_degree() > 1
                         or node.get_out_degree() > 1
                         else None
