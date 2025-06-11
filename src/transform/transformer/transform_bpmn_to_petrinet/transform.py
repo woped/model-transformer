@@ -5,7 +5,6 @@ from collections.abc import Callable
 from exceptions import InternalTransformationException
 from transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from transformer.models.bpmn.bpmn import (
-    # Klasse EventGateway aus bpmn importieren
     EventGateway,
     BPMN,
     AndGateway,
@@ -15,7 +14,6 @@ from transformer.models.bpmn.bpmn import (
     OrGateway,
     Process,
     StartEvent,
-    # Klasse ServiceTask aus bpmn importieren
     ServiceTask,
     UserTask,
     XorGateway,
@@ -151,7 +149,6 @@ def transform_bpmn_to_petrinet(
     # handle normals nodes
     for node in nodes:
         if isinstance(node, GenericTask | AndGateway | IntermediateCatchEvent):
-            # Name-Präfix für UserTask und ServiceTask
             name = node.name
             if isinstance(node, UserTask):
                 name = f"[UserTask] {node.name}"

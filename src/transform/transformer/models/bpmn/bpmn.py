@@ -209,7 +209,6 @@ class Process(GenericBPMNNode):
     xor_gws: set[XorGateway] = element(default_factory=set)
     or_gws: set[OrGateway] = element(default_factory=set)
     and_gws: set[AndGateway] = element(default_factory=set)
-    # Set für EventGateways hinzugefügt
     event_gws: set[EventGateway] = element(default_factory=set)
 
     subprocesses: set["Process"] = element(default_factory=set, tag="subProcess")
@@ -251,7 +250,6 @@ class Process(GenericBPMNNode):
                 XorGateway: self.xor_gws,
                 OrGateway: self.or_gws,
                 AndGateway: self.and_gws,
-                # Erweitert um EventGateway
                 EventGateway: self.event_gws,
                 Process: self.subprocesses,
                 IntermediateCatchEvent: self.intermediatecatch_events,
@@ -476,7 +474,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
             tree = fromstring(xml_content)
             used_tags: set[str] = set()
             for elem in tree.iter():
-                used_tags.add(get_tag_name(elem).lower())
+                used_tags.add(get_tag_name(elem))
             unhandled_tags = used_tags.difference(supported_tags)
             if len(unhandled_tags) > 0:
                 raise NotSupportedBPMNElement(str(unhandled_tags))
