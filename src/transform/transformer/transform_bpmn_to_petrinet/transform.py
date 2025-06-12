@@ -5,6 +5,7 @@ from collections.abc import Callable
 from exceptions import InternalTransformationException
 from transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from transformer.models.bpmn.bpmn import (
+    EventGateway,
     BPMN,
     AndGateway,
     EndEvent,
@@ -13,6 +14,7 @@ from transformer.models.bpmn.bpmn import (
     OrGateway,
     Process,
     StartEvent,
+    ServiceTask,
     UserTask,
     XorGateway,
 )
@@ -122,7 +124,6 @@ def transform_bpmn_to_petrinet(
     """Transform a BPMN to ST or WOPED workflow Net."""
     pnml = Pnml.generate_empty_net(bpmn.id)
     net = pnml.net
-
     nodes = set(bpmn._flatten_node_typ_map())
 
     # find workflow specific nodes
@@ -140,6 +141,7 @@ def transform_bpmn_to_petrinet(
             to_handle_triggers.append(node)
         elif isinstance(node, UserTask):
             to_handle_user_tasks.append(node)
+
     nodes = nodes.difference(
         to_handle_gateways, to_handle_subprocesses, to_handle_triggers
     )
@@ -147,12 +149,18 @@ def transform_bpmn_to_petrinet(
     # handle normals nodes
     for node in nodes:
         if isinstance(node, GenericTask | AndGateway | IntermediateCatchEvent):
+            name = node.name
+            if isinstance(node, UserTask):
+                name = f"[UserTask] {node.name}"
+            elif isinstance(node, ServiceTask):
+                name = f"[ServiceTask] {node.name}"
+
             net.add_element(
                 Transition.create(
                     id=node.id,
                     name=(
-                        node.name
-                        if node.name != ""
+                        name
+                        if name != ""
                         or node.get_in_degree() > 1
                         or node.get_out_degree() > 1
                         else None
@@ -160,12 +168,17 @@ def transform_bpmn_to_petrinet(
                 )
             )
         elif isinstance(
-            node, OrGateway | XorGateway | StartEvent | EndEvent | GenericBPMNNode
+            node,
+            OrGateway
+            | XorGateway
+            | StartEvent
+            | EndEvent
+            | GenericBPMNNode
+            | EventGateway,
         ):
             net.add_element(Place(id=node.id))
         else:
             raise InternalTransformationException(f"{type(node)} not supported")
-
     # handle workflow specific nodes
     handle_subprocesses(
         net, bpmn, to_handle_subprocesses, organization, transform_bpmn_to_petrinet
@@ -213,7 +226,6 @@ def apply_preprocessing(bpmn: Process, funcs: list[Callable[[Process], None]]):
 def bpmn_to_workflow_net(bpmn: BPMN):
     """Return a processed and transformed workflow net of process."""
     create_participant_mapping(bpmn.process)
-
     apply_preprocessing(
         bpmn.process,
         [
