@@ -1,0 +1,25 @@
+name: CD and Release Pipeline - Minor and Patch Versions
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  semver:
+    uses: woped/devops/.github/workflows/semver-and-release-notes.yaml@main
+    
+  gh_release:
+    uses: woped/devops/.github/workflows/github-release.yaml@main
+    needs: semver
+    with:
+      VERSION: ${{ needs.semver.outputs.VERSION }}
+      RELEASE_NOTES: ${{ needs.semver.outputs.RELEASE_NOTES }}
+
+  docker_build_and_push:
+    uses: woped/devops/.github/workflows/docker-build-and-push.yaml@main
+    needs: semver
+    with:
+      version: ${{ needs.semver.outputs.VERSION }}
