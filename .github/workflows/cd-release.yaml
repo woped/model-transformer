@@ -30,3 +30,6 @@ jobs:
     needs: [ semver, approval ]
     with:
       version: ${{ needs.semver.outputs.VERSION }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
