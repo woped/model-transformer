@@ -15,33 +15,37 @@ REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method',
 REQUEST_LATENCY = Histogram('http_request_duration_seconds', 'HTTP request latency', ['method', 'endpoint'])
 TRANSFORM_DURATION = Histogram('transform_duration_seconds', 'Transform processing duration')
 
-# Logging Setup
+class MetricsFilter(logging.Filter):
+    def filter(self, record):
+        if record.name == "werkzeug":
+            return "/metrics" not in record.getMessage()
+        try:
+            return not request.path.startswith('/metrics')
+        except RuntimeError:
+            return True
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# Console handler with JSON format
+werkzeug_logger = logging.getLogger('werkzeug')
+werkzeug_logger.setLevel(logging.INFO)
+
+metrics_filter = MetricsFilter()
+
 console_handler = logging.StreamHandler()
+console_handler.addFilter(metrics_filter)  # <- Filter aktiv
+
 console_formatter = jsonlogger.JsonFormatter(
     '%(asctime)s %(levelname)s %(name)s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 console_handler.setFormatter(console_formatter)
+
 logger.addHandler(console_handler)
+werkzeug_logger.addHandler(console_handler)
 
 app = Flask(__name__)
 CORS(app)
-
-@app.before_request
-def suppress_metrics_logging():
-    """Suppress logging for /metrics endpoint to avoid log spam."""
-    if request.path == '/metrics':
-        app.logger.disabled = True
-
-@app.after_request
-def restore_logging(response):
-    """Restore logging after request is processed."""
-    app.logger.disabled = False
-    return response
 
 @app.route('/metrics')
 def metrics():
