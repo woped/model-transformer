@@ -8,7 +8,7 @@ from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_
 import time
 from pythonjsonlogger import jsonlogger
 import logging
-import os
+
 
 # Prometheus Metriken
 REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
@@ -73,7 +73,7 @@ def transform_route():
         transform_start_time = time.time()
         result = post_transform(request)
         TRANSFORM_DURATION.observe(time.time() - transform_start_time)
-        
+
         REQUEST_COUNT.labels(method='POST', endpoint='/transform', status='200').inc()
         return result
     except Exception as e:
