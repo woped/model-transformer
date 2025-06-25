@@ -1,0 +1,81 @@
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+             id="TestfallEventBasedSplit" 
+             targetNamespace="http://example.com/bpmn">
+  <process id="Process_EventBasedSplit" isExecutable="true">
+    
+    <!-- Start Event -->
+    <startEvent id="StartEvent1" name="Start">
+      <outgoing>Flow1</outgoing>
+    </startEvent>
+    
+    <!-- Event-Based Gateway -->
+    <eventBasedGateway id="Gateway1" name="Warte auf Nachricht">
+      <incoming>Flow1</incoming>
+      <outgoing>Flow2</outgoing>
+      <outgoing>Flow5</outgoing>
+    </eventBasedGateway>
+    
+    <!-- Catch Event: Email -->
+    <intermediateCatchEvent id="WaitForEmail" name="Email erhalten">
+      <incoming>Flow2</incoming>
+      <outgoing>Flow3</outgoing>
+      <messageEventDefinition id="MessageDef1"/>
+    </intermediateCatchEvent>
+    
+    <!-- Catch Event: Fax -->
+    <intermediateCatchEvent id="WaitForFax" name="Fax erhalten">
+      <incoming>Flow5</incoming>
+      <outgoing>Flow6</outgoing>
+      <messageEventDefinition id="MessageDef2"/>
+    </intermediateCatchEvent>
+    
+    <!-- Join Gateway -->
+    <exclusiveGateway id="JoinGateway" name="Zusammenführen">
+      <incoming>Flow3</incoming>
+      <incoming>Flow6</incoming>
+      <outgoing>Flow4</outgoing>
+    </exclusiveGateway>
+    
+    <!-- Task -->
+    <task id="HandleEmail" name="Email bearbeiten">
+      <incoming>Flow4</incoming>
+      <outgoing>Flow7</outgoing>
+    </task>
+    
+    <!-- End Event -->
+    <endEvent id="EndEvent1" name="Ende">
+      <incoming>Flow7</incoming>
+    </endEvent>
+    
+    <!-- Sequence Flows -->
+    <sequenceFlow id="Flow1" sourceRef="StartEvent1" targetRef="Gateway1"/>
+    <sequenceFlow id="Flow2" sourceRef="Gateway1" targetRef="WaitForEmail"/>
+    <sequenceFlow id="Flow5" sourceRef="Gateway1" targetRef="WaitForFax"/>
+    <sequenceFlow id="Flow3" sourceRef="WaitForEmail" targetRef="JoinGateway"/>
+    <sequenceFlow id="Flow6" sourceRef="WaitForFax" targetRef="JoinGateway"/>
+    <sequenceFlow id="Flow4" sourceRef="JoinGateway" targetRef="HandleEmail"/>
+    <sequenceFlow id="Flow7" sourceRef="HandleEmail" targetRef="EndEvent1"/>
+  
+  </process>
+</definitions>
+
+</exclusiveGateway>
+<!--  Task  -->
+<task id="HandleEmail" name="Email bearbeiten">
+<incoming>Flow4</incoming>
+<outgoing>Flow7</outgoing>
+</task>
+<!--  End Event  -->
+<endEvent id="EndEvent1" name="Ende">
+<incoming>Flow7</incoming>
+</endEvent>
+<!--  Sequence Flows  -->
+<sequenceFlow id="Flow1" sourceRef="StartEvent1" targetRef="Gateway1"/>
+<sequenceFlow id="Flow2" sourceRef="Gateway1" targetRef="WaitForEmail"/>
+<sequenceFlow id="Flow5" sourceRef="Gateway1" targetRef="WaitForFax"/>
+<sequenceFlow id="Flow3" sourceRef="WaitForEmail" targetRef="JoinGateway"/>
+<sequenceFlow id="Flow6" sourceRef="WaitForFax" targetRef="JoinGateway"/>
+<sequenceFlow id="Flow4" sourceRef="JoinGateway" targetRef="HandleEmail"/>
+<sequenceFlow id="Flow7" sourceRef="HandleEmail" targetRef="EndEvent1"/>
+</process>
+</definitions>
