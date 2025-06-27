@@ -473,9 +473,16 @@ class BPMN(BPMNNamespace, tag="definitions"):
         try:
             tree = fromstring(xml_content)
             used_tags: set[str] = set()
+            amount_of_participants = 0
             for elem in tree.iter():
+                if get_tag_name(elem) == "participant":
+                    amount_of_participants += 1
                 used_tags.add(get_tag_name(elem))
             unhandled_tags = used_tags.difference(supported_tags)
+            if amount_of_participants > 1:
+                raise NotSupportedBPMNElement(
+                    "participant is only supported when there is exactly one pool in the BPMN model. Your BPMN is not"
+                )
             if len(unhandled_tags) > 0:
                 raise NotSupportedBPMNElement(str(unhandled_tags))
             return BPMN.from_xml_tree(tree)
