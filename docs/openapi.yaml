@@ -4,7 +4,7 @@ info:
   description: "Transforms BPMN diagrams to PNML or PNML diagrams to BPMN."
   version: "1.0.0"
 servers:
-  - url: "https://europe-west3-woped-422510.cloudfunctions.net"
+  - url: "https://woped.dhbw-karlsruhe.de/pnml-bpmn-transformer"
 paths:
   "/transform":
     post:
