@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0ovhr68" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.6.1">
+  <bpmn:collaboration id="Collaboration_0ncvsdi">
+    <bpmn:participant id="Participant_1tuzp99" name="Bank" processRef="Process_0t6bbmv" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_0t6bbmv">
+    <bpmn:startEvent id="Event_16y7ruk">
+      <bpmn:outgoing>Flow_00bv133</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Activity_0x16nvi" name="Kundenanfrage prüfen">
+      <bpmn:incoming>Flow_00bv133</bpmn:incoming>
+      <bpmn:outgoing>Flow_0jw1crm</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_1n1gm2j" name="Kundenkonto anlegen">
+      <bpmn:incoming>Flow_0jw1crm</bpmn:incoming>
+      <bpmn:outgoing>Flow_0tayjmi</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:task id="Activity_0zthrsb" name="Kunden informieren">
+      <bpmn:incoming>Flow_0tayjmi</bpmn:incoming>
+      <bpmn:outgoing>Flow_18qjr87</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="Event_0jgioqz">
+      <bpmn:incoming>Flow_18qjr87</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_00bv133" sourceRef="Event_16y7ruk" targetRef="Activity_0x16nvi" />
+    <bpmn:sequenceFlow id="Flow_0jw1crm" sourceRef="Activity_0x16nvi" targetRef="Activity_1n1gm2j" />
+    <bpmn:sequenceFlow id="Flow_0tayjmi" sourceRef="Activity_1n1gm2j" targetRef="Activity_0zthrsb" />
+    <bpmn:sequenceFlow id="Flow_18qjr87" sourceRef="Activity_0zthrsb" targetRef="Event_0jgioqz" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0ncvsdi">
+      <bpmndi:BPMNShape id="Participant_1tuzp99_di" bpmnElement="Participant_1tuzp99" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="720" height="340" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_16y7ruk_di" bpmnElement="Event_16y7ruk">
+        <dc:Bounds x="212" y="232" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0auz8px_di" bpmnElement="Activity_0x16nvi">
+        <dc:Bounds x="290" y="210" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0vkbknh_di" bpmnElement="Activity_1n1gm2j">
+        <dc:Bounds x="450" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0zthrsb_di" bpmnElement="Activity_0zthrsb">
+        <dc:Bounds x="620" y="210" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0jgioqz_di" bpmnElement="Event_0jgioqz">
+        <dc:Bounds x="792" y="232" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_00bv133_di" bpmnElement="Flow_00bv133">
+        <di:waypoint x="248" y="250" />
+        <di:waypoint x="290" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jw1crm_di" bpmnElement="Flow_0jw1crm">
+        <di:waypoint x="390" y="250" />
+        <di:waypoint x="450" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tayjmi_di" bpmnElement="Flow_0tayjmi">
+        <di:waypoint x="550" y="250" />
+        <di:waypoint x="620" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18qjr87_di" bpmnElement="Flow_18qjr87">
+        <di:waypoint x="720" y="250" />
+        <di:waypoint x="792" y="250" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
