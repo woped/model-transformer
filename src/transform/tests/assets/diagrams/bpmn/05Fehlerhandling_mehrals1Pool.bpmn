@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0b573p6" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.6.1">
+  <bpmn:collaboration id="Collaboration_0cndbwj">
+    <bpmn:participant id="Participant_1svs3vg" name="Finanzabteilung" processRef="Process_0sz0xx6" />
+    <bpmn:participant id="Participant_1s500t9" name="Marketing" processRef="Process_03vvvp6" />
+    <bpmn:messageFlow id="Flow_1o06h85" sourceRef="Event_1bvof7r" targetRef="Event_0rxux56" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_0sz0xx6" isExecutable="false">
+    <bpmn:startEvent id="Event_1w8ug5l">
+      <bpmn:outgoing>Flow_0tuxhr1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:intermediateCatchEvent id="Event_0rxux56">
+      <bpmn:incoming>Flow_0tuxhr1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0oczr73</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_08j9uge" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:task id="Activity_18zbi2i" name="Budget überprüfen">
+      <bpmn:incoming>Flow_0oczr73</bpmn:incoming>
+      <bpmn:outgoing>Flow_0i1grvj</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="Event_1whut69">
+      <bpmn:incoming>Flow_0i1grvj</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0tuxhr1" sourceRef="Event_1w8ug5l" targetRef="Event_0rxux56" />
+    <bpmn:sequenceFlow id="Flow_0oczr73" sourceRef="Event_0rxux56" targetRef="Activity_18zbi2i" />
+    <bpmn:sequenceFlow id="Flow_0i1grvj" sourceRef="Activity_18zbi2i" targetRef="Event_1whut69" />
+  </bpmn:process>
+  <bpmn:process id="Process_03vvvp6">
+    <bpmn:startEvent id="Event_07xwgcz">
+      <bpmn:outgoing>Flow_1fb32uh</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_0s24n01" name="Werbebudget planen">
+      <bpmn:incoming>Flow_1fb32uh</bpmn:incoming>
+      <bpmn:outgoing>Flow_1klybbk</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="Event_1bvof7r">
+      <bpmn:incoming>Flow_1klybbk</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_12aqp6s" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1fb32uh" sourceRef="Event_07xwgcz" targetRef="Activity_0s24n01" />
+    <bpmn:sequenceFlow id="Flow_1klybbk" sourceRef="Activity_0s24n01" targetRef="Event_1bvof7r" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0cndbwj">
+      <bpmndi:BPMNShape id="Participant_1svs3vg_di" bpmnElement="Participant_1svs3vg" isHorizontal="true">
+        <dc:Bounds x="160" y="90" width="698" height="250" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1w8ug5l_di" bpmnElement="Event_1w8ug5l">
+        <dc:Bounds x="232" y="202" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0g69rds_di" bpmnElement="Event_0rxux56">
+        <dc:Bounds x="462" y="202" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_18zbi2i_di" bpmnElement="Activity_18zbi2i">
+        <dc:Bounds x="560" y="180" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1whut69_di" bpmnElement="Event_1whut69">
+        <dc:Bounds x="722" y="202" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0tuxhr1_di" bpmnElement="Flow_0tuxhr1">
+        <di:waypoint x="268" y="220" />
+        <di:waypoint x="462" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0oczr73_di" bpmnElement="Flow_0oczr73">
+        <di:waypoint x="498" y="220" />
+        <di:waypoint x="560" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0i1grvj_di" bpmnElement="Flow_0i1grvj">
+        <di:waypoint x="660" y="220" />
+        <di:waypoint x="722" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_1s500t9_di" bpmnElement="Participant_1s500t9" isHorizontal="true">
+        <dc:Bounds x="160" y="400" width="698" height="250" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_07xwgcz_di" bpmnElement="Event_07xwgcz">
+        <dc:Bounds x="222" y="522" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0s24n01_di" bpmnElement="Activity_0s24n01">
+        <dc:Bounds x="310" y="500" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_09kyu3o_di" bpmnElement="Event_1bvof7r">
+        <dc:Bounds x="462" y="522" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1fb32uh_di" bpmnElement="Flow_1fb32uh">
+        <di:waypoint x="258" y="540" />
+        <di:waypoint x="310" y="540" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1klybbk_di" bpmnElement="Flow_1klybbk">
+        <di:waypoint x="410" y="540" />
+        <di:waypoint x="462" y="540" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1o06h85_di" bpmnElement="Flow_1o06h85">
+        <di:waypoint x="480" y="522" />
+        <di:waypoint x="480" y="238" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
