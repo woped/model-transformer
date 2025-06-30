@@ -298,9 +298,8 @@ def handle_resource_annotations(
     orga: str,
 ):
     """Handle the annotation of the transformed transitions from usertasks."""
-    if not orga or orga == "Default":
-        return
-
+    if orga == "Default":
+        orga = ""
     for user_task in user_tasks:
         role = participant_mapping.get(user_task.id) or ""
         net.get_element(user_task.id).mark_as_workflow_resource(role, orga)
