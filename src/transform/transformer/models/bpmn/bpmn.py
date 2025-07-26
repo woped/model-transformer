@@ -481,7 +481,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
             unhandled_tags = used_tags.difference(supported_tags)
             if amount_of_participants > 1:
                 raise NotSupportedBPMNElement(
-                    "participant is only supported when there is exactly one pool in the BPMN model. Your BPMN is not"
+                    "participant is only supported when there is exactly one pool in the BPMN model. Your BPMN is not compliant with this restriction."
                 )
             if len(unhandled_tags) > 0:
                 raise NotSupportedBPMNElement(str(unhandled_tags))
