@@ -76,7 +76,7 @@ supported_tags = {e.lower() for e in {*supported_elements, *ignored_elements}}
 
 # Gateways
 class EventGateway(Gateway, tag="eventBasedGateway"):
-    """EventbasedGateway extention of gateways."""
+    """EventbasedGateway extension of gateways."""
 
 
 class XorGateway(Gateway, tag="exclusiveGateway"):
