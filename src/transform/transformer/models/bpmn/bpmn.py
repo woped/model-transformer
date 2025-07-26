@@ -30,6 +30,7 @@ from transformer.models.bpmn.bpmn_graphics import (
 from transformer.utility.utility import create_arc_name, get_tag_name
 
 supported_elements = {
+    "eventbasedGateway",
     "exclusiveGateway",
     "parallelGateway",
     "inclusiveGateway",
@@ -74,6 +75,10 @@ supported_tags = {e.lower() for e in {*supported_elements, *ignored_elements}}
 
 
 # Gateways
+class EventGateway(Gateway, tag="eventBasedGateway"):
+    """EventbasedGateway extension of gateways."""
+
+
 class XorGateway(Gateway, tag="exclusiveGateway"):
     """XOR extension of gateways."""
 
@@ -204,6 +209,7 @@ class Process(GenericBPMNNode):
     xor_gws: set[XorGateway] = element(default_factory=set)
     or_gws: set[OrGateway] = element(default_factory=set)
     and_gws: set[AndGateway] = element(default_factory=set)
+    event_gws: set[EventGateway] = element(default_factory=set)
 
     subprocesses: set["Process"] = element(default_factory=set, tag="subProcess")
 
@@ -228,6 +234,9 @@ class Process(GenericBPMNNode):
         super().__init__(**data)
         self._init_reference_structures()
 
+        if len(self.or_gws) > 0:
+            raise NotSupportedBPMNElement("inclusiveGateway")
+
     def _init_reference_structures(self):
         """Instance initializer."""
         self._type_map = cast(
@@ -241,6 +250,7 @@ class Process(GenericBPMNNode):
                 XorGateway: self.xor_gws,
                 OrGateway: self.or_gws,
                 AndGateway: self.and_gws,
+                EventGateway: self.event_gws,
                 Process: self.subprocesses,
                 IntermediateCatchEvent: self.intermediatecatch_events,
                 GenericBPMNNode: set(),
@@ -463,9 +473,16 @@ class BPMN(BPMNNamespace, tag="definitions"):
         try:
             tree = fromstring(xml_content)
             used_tags: set[str] = set()
+            amount_of_participants = 0
             for elem in tree.iter():
+                if get_tag_name(elem) == "participant":
+                    amount_of_participants += 1
                 used_tags.add(get_tag_name(elem))
             unhandled_tags = used_tags.difference(supported_tags)
+            if amount_of_participants > 1:
+                raise NotSupportedBPMNElement(
+                    "participant is only supported when there is exactly one pool in the BPMN model. Your BPMN is not compliant with this restriction."
+                )
             if len(unhandled_tags) > 0:
                 raise NotSupportedBPMNElement(str(unhandled_tags))
             return BPMN.from_xml_tree(tree)
