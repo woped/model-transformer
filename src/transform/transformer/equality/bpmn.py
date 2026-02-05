@@ -91,8 +91,7 @@ keys 2:
                 diff_1_to_2 = bpmn1_types[k].difference(bpmn2_types[k])
                 diff_2_to_1 = bpmn2_types[k].difference(bpmn1_types[k])
                 errors.append(
-                    f"{bpmn_id}\n{k} difference equality| 1 to 2: {
-                        diff_1_to_2}| 2 to 1: {diff_2_to_1}"
+                    f"{bpmn_id}\n{k} difference equality| 1 to 2: {diff_1_to_2}| 2 to 1: {diff_2_to_1}"
                 )
     if len(errors) > 0:
         joined_errors = "\n".join(errors)

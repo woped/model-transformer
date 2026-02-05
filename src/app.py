@@ -1,5 +1,6 @@
 """App file for cloudfunctions when deploying inside a docker container."""
 
+import os
 from flask import Flask, request, jsonify
 from health.main import get_health
 from transform.main import post_transform
@@ -15,6 +16,24 @@ REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method',
 REQUEST_LATENCY = Histogram('http_request_duration_seconds', 'HTTP request latency', ['method', 'endpoint'])
 TRANSFORM_DURATION = Histogram('transform_duration_seconds', 'Transform processing duration')
 
+
+def get_log_level() -> int:
+    """Get log level from environment variable LOG_LEVEL.
+    
+    Supported values: DEBUG, INFO, WARNING, ERROR, CRITICAL
+    Default: INFO
+    """
+    log_level_str = os.getenv("LOG_LEVEL", "INFO").upper()
+    log_levels = {
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL,
+    }
+    return log_levels.get(log_level_str, logging.INFO)
+
+
 class MetricsFilter(logging.Filter):
     def filter(self, record):
         if record.name == "werkzeug":
@@ -24,16 +43,20 @@ class MetricsFilter(logging.Filter):
         except RuntimeError:
             return True
 
+
+# Configure logging
+log_level = get_log_level()
+
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(log_level)
 
 werkzeug_logger = logging.getLogger('werkzeug')
-werkzeug_logger.setLevel(logging.INFO)
+werkzeug_logger.setLevel(log_level)
 
 metrics_filter = MetricsFilter()
 
 console_handler = logging.StreamHandler()
-console_handler.addFilter(metrics_filter)  # <- Filter aktiv
+console_handler.addFilter(metrics_filter)
 
 console_formatter = jsonlogger.JsonFormatter(
     '%(asctime)s %(levelname)s %(name)s %(message)s',
@@ -43,6 +66,8 @@ console_handler.setFormatter(console_formatter)
 
 logger.addHandler(console_handler)
 werkzeug_logger.addHandler(console_handler)
+
+logger.info("Application starting", extra={"log_level": logging.getLevelName(log_level)})
 
 app = Flask(__name__)
 CORS(app)
@@ -57,12 +82,17 @@ def health_route():
     """Mapping route for health endpoint."""
     start_time = time.time()
     try:
-        logger.info("Health check endpoint called")
+        logger.debug("Health check endpoint called", extra={
+            "method": request.method,
+            "remote_addr": request.remote_addr,
+        })
         result = get_health(request)
+        elapsed_ms = (time.time() - start_time) * 1000
+        logger.info("Health check completed", extra={"duration_ms": round(elapsed_ms, 2)})
         REQUEST_COUNT.labels(method='GET', endpoint='/health', status='200').inc()
         return result
     except Exception as e:
-        logger.error("Health check failed", extra={"error": str(e)})
+        logger.error("Health check failed", extra={"error": str(e), "error_type": type(e).__name__})
         REQUEST_COUNT.labels(method='GET', endpoint='/health', status='500').inc()
         return jsonify({"error": str(e)}), 500
     finally:
@@ -73,15 +103,36 @@ def transform_route():
     """Mapping route for transform endpoint."""
     start_time = time.time()
     try:
-        logger.info("Transform request received")
+        direction = request.args.get("direction", "unknown")
+        content_length = request.content_length or 0
+        
+        logger.info("Transform request received", extra={
+            "direction": direction,
+            "content_length_bytes": content_length,
+            "remote_addr": request.remote_addr,
+        })
+        logger.debug("Transform request details", extra={
+            "content_type": request.content_type,
+            "form_keys": list(request.form.keys()) if request.form else [],
+        })
+        
         transform_start_time = time.time()
         result = post_transform(request)
+        transform_duration_ms = (time.time() - transform_start_time) * 1000
         TRANSFORM_DURATION.observe(time.time() - transform_start_time)
 
+        logger.info("Transform request completed", extra={
+            "direction": direction,
+            "duration_ms": round(transform_duration_ms, 2),
+        })
         REQUEST_COUNT.labels(method='POST', endpoint='/transform', status='200').inc()
         return result
     except Exception as e:
-        logger.error("Transform request failed", extra={"error": str(e)})
+        logger.error("Transform request failed", extra={
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "direction": request.args.get("direction", "unknown"),
+        })
         REQUEST_COUNT.labels(method='POST', endpoint='/transform', status='500').inc()
         return jsonify({"error": str(e)}), 500
     finally:

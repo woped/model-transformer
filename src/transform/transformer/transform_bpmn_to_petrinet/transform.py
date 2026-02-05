@@ -1,5 +1,6 @@
 """Methods to initiate a bpmn to petri net transformation."""
 
+import logging
 from collections.abc import Callable
 
 from exceptions import InternalTransformationException
@@ -37,6 +38,8 @@ from transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
 )
 from transformer.utility.pnml import find_triggers
 from transformer.utility.utility import create_silent_node_name
+
+logger = logging.getLogger(__name__)
 
 
 def merge_single_triggers(net: Net):
@@ -122,6 +125,11 @@ def transform_bpmn_to_petrinet(
     organization: str = "DEFAULT ORGANIZATION",
 ):
     """Transform a BPMN to ST or WOPED workflow Net."""
+    logger.debug("Starting BPMN to Petri net transformation", extra={
+        "process_id": bpmn.id,
+        "organization": organization,
+    })
+    
     pnml = Pnml.generate_empty_net(bpmn.id)
     net = pnml.net
     nodes = set(bpmn._flatten_node_typ_map())
@@ -141,6 +149,14 @@ def transform_bpmn_to_petrinet(
             to_handle_triggers.append(node)
         elif isinstance(node, UserTask):
             to_handle_user_tasks.append(node)
+
+    logger.debug("Identified workflow elements", extra={
+        "total_nodes": len(nodes),
+        "gateways": len(to_handle_gateways),
+        "user_tasks": len(to_handle_user_tasks),
+        "subprocesses": len(to_handle_subprocesses),
+        "triggers": len(to_handle_triggers),
+    })
 
     nodes = nodes.difference(
         to_handle_gateways, to_handle_subprocesses, to_handle_triggers
@@ -209,7 +225,14 @@ def transform_bpmn_to_petrinet(
             net.add_arc(source, target)
 
     # Post processing
+    logger.debug("Running post-processing: merging single triggers")
     merge_single_triggers(net)
+
+    logger.debug("BPMN to Petri net transformation completed", extra={
+        "places": len(net.places),
+        "transitions": len(net.transitions),
+        "arcs": len(net.arcs),
+    })
 
     return pnml
 
@@ -225,7 +248,12 @@ def apply_preprocessing(bpmn: Process, funcs: list[Callable[[Process], None]]):
 
 def bpmn_to_workflow_net(bpmn: BPMN):
     """Return a processed and transformed workflow net of process."""
+    logger.info("Starting BPMN to workflow net conversion")
+    
+    logger.debug("Creating participant mapping")
     create_participant_mapping(bpmn.process)
+    
+    logger.debug("Applying preprocessing steps")
     apply_preprocessing(
         bpmn.process,
         [
@@ -234,15 +262,23 @@ def bpmn_to_workflow_net(bpmn: BPMN):
             adjacent_inserter.insert_temp_between_adjacent_mapped_transition,
         ],
     )
+    logger.debug("Preprocessing completed")
+    
     organization_name = (
         bpmn.collaboration.participant.name or "Default"
         if bpmn.collaboration and bpmn.collaboration.participant
         else "Default"
     )
+    logger.debug("Organization determined", extra={"organization": organization_name})
+    
     pnml = transform_bpmn_to_petrinet(bpmn.process, organization_name)
+    
+    logger.debug("Setting global tool-specific information")
     set_global_toolspecifi(
         pnml.net, bpmn.process._participant_mapping, organization_name
     )
+    
+    logger.info("BPMN to workflow net conversion completed")
     return pnml
 
 
