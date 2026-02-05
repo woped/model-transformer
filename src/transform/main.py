@@ -89,6 +89,38 @@ def post_transform(request: flask.Request):
         return str(UnexpectedError()), 400
 
 
+def get_xml_content(request: flask.Request, field_name: str) -> str:
+    """Extract XML content from request - supports both form-data and raw XML body.
+    
+    Args:
+        request: The Flask request object
+        field_name: The form field name to look for ('bpmn' or 'pnml')
+    
+    Returns:
+        The XML content as string
+    
+    Raises:
+        ValueError: If no XML content could be extracted
+    """
+    # Try form data first (multipart/form-data)
+    if request.form and field_name in request.form:
+        logger.debug("Extracting XML from form field", extra={"field": field_name})
+        return request.form[field_name]
+    
+    # Try raw body (application/xml or text/xml)
+    content_type = request.content_type or ""
+    if "xml" in content_type.lower() or not request.form:
+        raw_data = request.get_data(as_text=True)
+        if raw_data:
+            logger.debug("Extracting XML from raw body", extra={
+                "content_type": content_type,
+                "body_length": len(raw_data),
+            })
+            return raw_data
+    
+    raise ValueError(f"No XML content found. Expected form field '{field_name}' or XML body.")
+
+
 def handle_transformation(request: flask.Request):
     """Handle the transformation."""
     transform_direction = request.args.get("direction")
@@ -99,7 +131,7 @@ def handle_transformation(request: flask.Request):
     logger.info("Starting transformation", extra={"direction": transform_direction})
 
     if transform_direction == "bpmntopnml":
-        bpmn_xml_content = request.form["bpmn"]
+        bpmn_xml_content = get_xml_content(request, "bpmn")
         input_size = len(bpmn_xml_content)
         logger.debug("Received BPMN input", extra={"input_size_bytes": input_size})
         
@@ -126,7 +158,7 @@ def handle_transformation(request: flask.Request):
         response.headers["Access-Control-Allow-Origin"] = "*"
         return response
     elif transform_direction == "pnmltobpmn":
-        pnml_xml_content = request.form["pnml"]
+        pnml_xml_content = get_xml_content(request, "pnml")
         input_size = len(pnml_xml_content)
         logger.debug("Received PNML input", extra={"input_size_bytes": input_size})
         
