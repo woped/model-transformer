@@ -8,10 +8,12 @@ __pycache__/
 
 # PyTest
 .pytest_cache/
-src/transform/test_log
+app/transform/test_log
 
 # VS Code
 .vscode/
+.vscode-test/
+*.code-workspace
 
 # Service Account Secrets
 secrets/
@@ -21,3 +23,7 @@ secrets/
 
 # PyTest Coverage
 .coverage
+
+# Python virtual environments
+.venv/
+venv/

@@ -5,15 +5,20 @@ WORKDIR ${APP_HOME}
 
 # Set the environment variable FORCE_STD_XML
 ENV FORCE_STD_XML=true
+ENV APP_ENV=production
 
 # Copying complete source code
-COPY src/. ${APP_HOME}/src/.
-# Copying the global requirements.txt
-COPY requirements.txt global_requirements.txt
+COPY . ${APP_HOME}/
+# Copying requirements
+COPY requirements/ ${APP_HOME}/requirements/
 
-# installing all globally required dependencies
-RUN pip install -r global_requirements.txt
+# installing all production dependencies
+RUN pip install -r requirements/docker.txt
 
-ENV PYTHONPATH=${APP_HOME}/src/transform:${APP_HOME}/src/health
+ENV PYTHONPATH=${APP_HOME}
 
-CMD ["python", "src/app.py"]
+# Make boot script executable
+RUN chmod +x ${APP_HOME}/boot.sh
+
+# Run the application with gunicorn
+CMD ["./boot.sh"]

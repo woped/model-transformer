@@ -1,0 +1,6 @@
+-r base.txt
+
+pytest==8.2.2
+ruff==0.5.1
+watchdog==4.0.1
+python-dotenv==1.0.1

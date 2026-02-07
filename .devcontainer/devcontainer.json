@@ -5,7 +5,7 @@
 		"ghcr.io/devcontainers/features/git:1": {},
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
 	},
-	"postCreateCommand": "pip3 install --user -r requirements.txt -r ./src/checkTokens/requirements.txt -r ./src/health/requirements.txt -r ./src/transform/requirements.txt",
+	"postCreateCommand": "pip3 install --user -r requirements/dev.txt -r ./app/checkTokens/requirements.txt -r ./app/health/requirements.txt -r ./app/transform/requirements.txt",
 	"customizations": {
 		"vscode": {
 			"extensions": [
