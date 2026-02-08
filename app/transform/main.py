@@ -5,7 +5,6 @@ import time
 import logging
 
 import flask
-import functions_framework
 import requests
 from flask import jsonify, make_response
 
@@ -35,7 +34,6 @@ if is_force_std_xml_active is None:
     raise MissingEnvironmentVariable("FORCE_STD_XML")
 
 
-@functions_framework.http
 def post_transform(request: flask.Request):
     """HTTP based model transformation API.
 

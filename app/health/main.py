@@ -6,12 +6,11 @@ with the health status of the service, indicating if it's operational.
 
 import logging
 
-import functions_framework
 from flask import jsonify, make_response
 
 logger = logging.getLogger(__name__)
 
-@functions_framework.http
+
 def get_health(request):
     """HTTP Cloud Function.
 
