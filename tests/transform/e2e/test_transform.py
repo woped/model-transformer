@@ -3,8 +3,10 @@
 import requests
 import unittest
 from xml.dom import minidom
+import pytest
 import os
 
+@pytest.mark.e2e
 class TestE2EPostTransform(unittest.TestCase):
     """A e2e test class for testing the transform endpoint of the application."""
 

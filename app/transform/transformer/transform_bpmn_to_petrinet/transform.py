@@ -3,7 +3,7 @@
 import logging
 from collections.abc import Callable
 
-from app.transform.exceptions import InternalTransformationException
+from app.transform.exceptions import InternalTransformationException, NotSupportedBPMNElement
 from app.transform.transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from app.transform.transformer.models.bpmn.bpmn import (
     EventGateway,
@@ -188,7 +188,7 @@ def transform_bpmn_to_petrinet(
         ):
             net.add_element(Place(id=node.id))
         else:
-            raise InternalTransformationException(f"{type(node)} not supported")
+            raise NotSupportedBPMNElement(f"{type(node).__name__}")
     
     # handle workflow specific nodes
     logger.debug("Handling subprocesses")

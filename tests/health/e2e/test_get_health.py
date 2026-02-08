@@ -2,9 +2,11 @@
 
 import requests
 import unittest
+import pytest
 
 import os
 
+@pytest.mark.e2e
 class TestE2EGetHealth(unittest.TestCase):
     """A e2e test class for testing the health endpoint of the application."""
     

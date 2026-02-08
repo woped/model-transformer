@@ -32,6 +32,35 @@ pytest tests/
 pytest tests/ --cov=app
 ```
 
+### End-to-End (E2E) Testing
+
+E2E tests require a running server instance and are skipped by default. To run E2E tests:
+
+1. Start the application server:
+   ```bash
+   export FORCE_STD_XML=true
+   export FLASK_CONFIG=development
+   flask run
+   ```
+
+2. In a separate terminal, set E2E environment variables and run tests:
+   ```bash
+   export E2E_URL=http://localhost:5000    # Base URL for health/checkTokens
+   # For transform endpoint: http://localhost:5000/transform
+   export E2E_IDENTITY_TOKEN=your_token_here
+   
+   # Run only E2E tests
+   pytest tests/ -m e2e
+   
+   # Run all tests including E2E
+   pytest tests/
+   ```
+
+To exclude E2E tests (default behavior when environment variables are not set):
+```bash
+pytest tests/ -m "not e2e"
+```
+
 ### Production
 
 ```bash

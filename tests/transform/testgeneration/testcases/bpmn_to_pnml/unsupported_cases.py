@@ -30,7 +30,6 @@ def generate():
         "extensionElements",
         # gateways
         "complexGateway",
-        "eventBasedGateway",
         # tasks
         "sendTask",
         "receiveTask",
