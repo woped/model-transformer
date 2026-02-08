@@ -8,6 +8,7 @@ __pycache__/
 
 # PyTest
 .pytest_cache/
+test_log/
 app/transform/test_log
 
 # VS Code

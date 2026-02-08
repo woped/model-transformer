@@ -16,14 +16,14 @@ class TestSubelements(unittest.TestCase):
 
     def test_pnml_eqaulity_subprocess(self):
         """Tests whether all pnml subprocesses are identified."""
-        pnml = Pnml.from_file("tests/assets/multiplesubprocesses.pnml")
+        pnml = Pnml.from_file("tests/transform/assets/multiplesubprocesses.pnml")
         subnets = {}
         get_all_nets_by_id(pnml.net, subnets)
         self.assertEqual(len(subnets), 8)
 
     def test_bpmn_eqaulity_subprocess(self):
         """Tests whether all bpmn subprocesses are identified."""
-        bpmn = BPMN.from_file("tests/assets/multiplesubprocesses.bpmn")
+        bpmn = BPMN.from_file("tests/transform/assets/multiplesubprocesses.bpmn")
         subnets = {}
         get_all_processes_by_id(bpmn.process, subnets)
         self.assertEqual(len(subnets), 5)
