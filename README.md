@@ -43,11 +43,10 @@ E2E tests require a running server instance and are skipped by default. To run E
    flask run
    ```
 
-2. In a separate terminal, set E2E environment variables and run tests:
+2. In a separate terminal, set E2E environment variable and run tests:
    ```bash
    export E2E_URL=http://localhost:5000    # Base URL for health/checkTokens
    # For transform endpoint: http://localhost:5000/transform
-   export E2E_IDENTITY_TOKEN=your_token_here
    
    # Run only E2E tests
    pytest tests/ -m e2e

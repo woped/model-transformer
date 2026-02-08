@@ -18,6 +18,8 @@ jobs:
       flask_app: 'wsgi:app'
       flask_env: 'testing'
       e2e_url: 'http://localhost:5000'  # E2E tests with local server
+    secrets:
+      E2E_IDENTITY_TOKEN: ${{ secrets.E2E_IDENTITY_TOKEN }}
   sonar_python:
     needs: testing_flask
     uses: woped/devops/.github/workflows/sonar_python.yaml@main

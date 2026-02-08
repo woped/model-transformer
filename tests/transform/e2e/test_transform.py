@@ -34,12 +34,6 @@ class TestE2EPostTransform(unittest.TestCase):
         self.maxDiff = None
         if self.url is None:
             raise ValueError("E2E_URL environment variable not set.")
-        self.token = os.getenv("E2E_IDENTITY_TOKEN")
-        if self.token is None:
-            raise ValueError("E2E_IDENTITY_TOKEN environment variable not set.")
-        self.shared_haeaders = {
-            "Authorization": f"Bearer {self.token}"
-        }
 
     def test_pnml_to_bpmn(self):
         """Tests transform endpoint for pnmltobpmn direction."""
@@ -59,7 +53,6 @@ class TestE2EPostTransform(unittest.TestCase):
             f'{self.url}?direction=pnmltobpmn', 
             data = payload,
             timeout=self.REQUEST_TIMEOUT,
-            headers=self.shared_haeaders,
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["Content-Type"], "application/json")
@@ -87,7 +80,6 @@ class TestE2EPostTransform(unittest.TestCase):
             f'{self.url}?direction=bpmntopnml', 
             data = payload,
             timeout=self.REQUEST_TIMEOUT,
-            headers=self.shared_haeaders,
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["Content-Type"], "application/json")
@@ -110,6 +102,5 @@ class TestE2EPostTransform(unittest.TestCase):
             f'{self.url}?direction=invalid',
             data=payload,
             timeout=self.REQUEST_TIMEOUT,
-            headers=self.shared_haeaders,
         )
         self.assertEqual(response.status_code, 400)
