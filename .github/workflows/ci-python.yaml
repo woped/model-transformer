@@ -14,6 +14,9 @@ jobs:
    uses: woped/devops/.github/workflows/linting.yaml@main
   testing_pytest:
     uses: woped/devops/.github/workflows/testing_flask.yaml@main
+    with:
+      flask_app: 'wsgi:app'
+      flask_env: 'testing'
   sonar_python:
     needs: testing_pytest
     uses: woped/devops/.github/workflows/sonar_python.yaml@main
