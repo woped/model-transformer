@@ -1,5 +1,6 @@
 """Handle workflow subprocesses and operators of petri net and handle them in bpmn."""
 
+import logging
 from collections.abc import Callable
 
 from pydantic import BaseModel, Field
@@ -35,6 +36,8 @@ from app.transform.transformer.models.pnml.workflow import WorkflowBranchingType
 from app.transform.transformer.utility.pnml import (
     generate_subprocess_inner_id,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class WorkflowOperatorWrapper(BaseModel):
@@ -95,6 +98,7 @@ def find_workflow_subprocesses(net: Net):
 
 def find_workflow_operators(net: Net):
     """Return all workflow operators of a net."""
+    logger.debug("Finding workflow operators in net")
     operator_map: dict[str, list[NetElement]] = {}
     for node in net._temp_elements.values():
         if isinstance(node, Page):
@@ -131,6 +135,7 @@ def find_workflow_operators(net: Net):
                     continue
                 o.outgoing_nodes.add(net.get_element(outgoing.target))
                 o.outgoing_arcs.add(outgoing)
+    logger.debug(f"Found {len(operator_wrappers)} workflow operator groups")
     return operator_wrappers
 
 
@@ -141,6 +146,7 @@ def handle_workflow_subprocesses(
     caller_func: Callable[[Net], BPMN],
 ):
     """Add all found workflow subprocesses of a net as nodes to a bpmn."""
+    logger.debug(f"Handling {len(to_handle_subprocesses)} workflow subprocesses")
     for subprocess_transition in to_handle_subprocesses:
         sb_id = subprocess_transition.id
         page = net.get_page(sb_id)
@@ -173,12 +179,14 @@ def handle_workflow_subprocesses(
         inner_bpmn.name = subprocess_transition.get_name()
         inner_bpmn.isExecutable = None
         bpmn.add_node(inner_bpmn)
+        logger.debug(f"Added subprocess: {sb_id}")
 
 
 def handle_workflow_operators(
     bpmn: Process, to_handle_temp_gateways: list[GatewayHelperPNML]
 ):
     """Add all found workflow operators of a net as nodes to a bpmn."""
+    logger.debug(f"Handling {len(to_handle_temp_gateways)} workflow operators")
     for temp_gateway in to_handle_temp_gateways:
         if isinstance(temp_gateway, XORHelperPNML):
             bpmn.add_node(XorGateway(id=temp_gateway.id, name=temp_gateway.get_name()))
@@ -190,6 +198,7 @@ def handle_event_triggers(
     bpmn: Process, to_handle_temp_triggers: list[TriggerHelperPNML]
 ):
     """Replace all temptriggers with the actual BPMN-Element."""
+    logger.debug(f"Handling {len(to_handle_temp_triggers)} event triggers")
     for temp_trigger in to_handle_temp_triggers:
         if isinstance(temp_trigger, MessageHelperPNML):
             bpmn.add_node(IntermediateCatchEvent.create_message_event(temp_trigger.id))
@@ -201,6 +210,7 @@ def handle_resource_transitions(
     bpmn: Process, to_handle_temp_resources: list[Transition]
 ):
     """Convert resource transitions with out and indegree <=1 to usertasks."""
+    logger.debug(f"Handling {len(to_handle_temp_resources)} resource transitions")
     for resource in to_handle_temp_resources:
         bpmn.add_node(UserTask(id=resource.id, name=resource.get_name()))
 
@@ -231,6 +241,7 @@ def find_role_type_of_subprocess(net: Net, current_role: str | None = None):
 
 def annotate_resources(net: Net, bpmn: BPMN):
     """Handle resources to participant if net if root element."""
+    logger.debug("Annotating resources to BPMN lanes and participants")
     current_organization: str | None = None
     role_map: dict[str, list[str]] = {}
     to_handle_temp_resources = [
@@ -271,6 +282,7 @@ def annotate_resources(net: Net, bpmn: BPMN):
 
     # If no resources were found creation of pool not necessary
     if len(handled_nodes) == 0:
+        logger.debug("No resources found, skipping pool/lane creation")
         return
 
     # Add all elements without a role annotation to a Unkown lane
@@ -294,4 +306,5 @@ def annotate_resources(net: Net, bpmn: BPMN):
             continue
         lanes.add(Lane(id=role_name, name=role_name, flowNodeRefs=set(node_refs)))
     bpmn.process.lane_sets = set([LaneSet(id="ls", lanes=lanes)])
+    logger.debug(f"Created {len(lanes)} lanes with organization: {current_organization}")
 

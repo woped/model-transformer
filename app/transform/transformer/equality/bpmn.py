@@ -1,5 +1,7 @@
 """Methods to compare BPMNs by comparing all nodes with selected attributes."""
 
+import logging
+
 from app.transform.exceptions import PrivateInternalException
 from app.transform.transformer.equality.utils import create_type_dict, to_comp_string
 from app.transform.transformer.models.bpmn.base import GenericBPMNNode
@@ -9,6 +11,8 @@ from app.transform.transformer.models.bpmn.bpmn import (
     LaneSet,
     Process,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def bpmn_element_to_comp_value(e: GenericBPMNNode | Flow):
@@ -58,15 +62,20 @@ def get_organization(bpmn: BPMN):
 
 def compare_bpmn(bpmn1_comp: BPMN, bpmn2_comp: BPMN):
     """Returns a boolean if the diagrams are equal and an optional error message."""
+    logger.debug("Comparing two BPMN models")
     bpmn1_processes: dict[str, Process] = {}
     get_all_processes_by_id(bpmn1_comp.process, bpmn1_processes)
     bpmn2_processes: dict[str, Process] = {}
     get_all_processes_by_id(bpmn2_comp.process, bpmn2_processes)
+    
+    logger.debug(f"BPMN1 has {len(bpmn1_processes)} processes, BPMN2 has {len(bpmn2_processes)} processes")
 
     if bpmn1_processes.keys() != bpmn2_processes.keys():
+        logger.warning("BPMN comparison failed: Different process IDs")
         return False, "Wrong processes IDs"
 
     if get_organization(bpmn1_comp) != get_organization(bpmn2_comp):
+        logger.warning("BPMN comparison failed: Different organizations")
         return False, "Wrong organizations"
 
     errors = []
@@ -96,6 +105,8 @@ keys 2:
                 )
     if len(errors) > 0:
         joined_errors = "\n".join(errors)
+        logger.warning(f"BPMN comparison failed with {len(errors)} differences")
         return False, f"Issues BPMN equality for types:\n{joined_errors}"
+    logger.debug("BPMN comparison successful: Models are equal")
     return True, None
 

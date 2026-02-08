@@ -1,9 +1,12 @@
 """Module for processing gateways for bpmn workflows."""
 
+import logging
 from typing import cast
 
 from app.transform.transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from app.transform.transformer.models.bpmn.bpmn import Flow, Process
+
+logger = logging.getLogger(__name__)
 
 
 def remove_unnecessary_gateways(bpmn: Process, gateways: set[Gateway]):
@@ -64,9 +67,12 @@ def preprocess_gateways(bpmn: Process):
     - removing unnecessary gateways
     - add a helper node between adjacent gateways
     """
+    logger.debug("Preprocessing gateways")
     gateways = get_gateways(bpmn)
+    logger.debug(f"Found {len(gateways)} gateways to preprocess")
     if len(gateways) == 0:
         return
     remove_unnecessary_gateways(bpmn, gateways)
     add_pn_place_between_adjacent_gateways(bpmn, gateways)
+    logger.debug("Gateway preprocessing completed")
 

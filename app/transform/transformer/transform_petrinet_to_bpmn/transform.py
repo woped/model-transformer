@@ -1,5 +1,6 @@
 """Initiate the preprocessing and transformation of pnml to bpmn."""
 
+import logging
 from collections.abc import Callable
 
 from app.transform.transformer.models.bpmn.base import Gateway
@@ -33,18 +34,26 @@ from app.transform.transformer.transform_petrinet_to_bpmn.workflow_helper import
 )
 from app.transform.transformer.utility.utility import create_arc_name
 
+logger = logging.getLogger(__name__)
+
 
 def remove_silent_tasks(bpmn: Process):
     """Remove silent tasks (Without name)."""
+    logger.debug(f"Removing silent tasks from process {bpmn.id}")
+    removed_count = 0
     for task in bpmn.tasks.copy():
         if task.name is not None:
             continue
         source_id, target_id = bpmn.remove_node_with_connecting_flows(task)
         bpmn.add_flow(bpmn.get_node(source_id), bpmn.get_node(target_id))
+        removed_count += 1
+    logger.debug(f"Removed {removed_count} silent tasks")
 
 
 def remove_unnecessary_gateways(bpmn: Process):
     """Remove unnecessary gateways (In and out degree == 1)."""
+    logger.debug(f"Removing unnecessary gateways from process {bpmn.id}")
+    total_removed = 0
     is_rerun_reduce = True
     while is_rerun_reduce:
         is_rerun_reduce = False
@@ -68,12 +77,16 @@ def remove_unnecessary_gateways(bpmn: Process):
             bpmn.add_flow(
                 bpmn.get_node(source_id), bpmn.get_node(target_id), id=new_flow_id
             )
-
+            total_removed += 1
             is_rerun_reduce = True
+    logger.debug(f"Removed {total_removed} unnecessary gateways")
 
 
 def transform_petrinet_to_bpmn(net: Net):
     """Initiate the transformation of a preprocessed petri net to bpmn."""
+    logger.debug(f"Starting transform_petrinet_to_bpmn for net: {net.id}")
+    logger.debug(f"Net contains {len(net.places)} places, {len(net.transitions)} transitions, {len(net.arcs)} arcs")
+    
     bpmn_general = BPMN.generate_empty_bpmn(net.id or "new_net")
     bpmn = bpmn_general.process
 
@@ -81,8 +94,10 @@ def transform_petrinet_to_bpmn(net: Net):
     places = net.places.copy()
 
     # find workflow specific elements
+    logger.debug("Identifying workflow-specific elements")
     to_handle_subprocesses = find_workflow_subprocesses(net)
     transitions.difference_update(to_handle_subprocesses)
+    logger.debug(f"Found {len(to_handle_subprocesses)} subprocesses")
 
     to_handle_temp_gateways = [
         elem
@@ -105,6 +120,9 @@ def transform_petrinet_to_bpmn(net: Net):
         and net.get_out_degree(transition) <= 1
     ]
     transitions.difference_update(to_handle_temp_resources)
+    
+    logger.debug(f"Processing {len(places)} places and {len(transitions)} transitions")
+    logger.debug(f"Workflow elements - Gateways: {len(to_handle_temp_gateways)}, Triggers: {len(to_handle_temp_triggers)}, Resources: {len(to_handle_temp_resources)}")
 
     # handle normal places
     for place in places:
@@ -132,12 +150,14 @@ def transform_petrinet_to_bpmn(net: Net):
             bpmn.add_node(AndGateway(id=transition.id, name=transition.get_name()))
 
     # handle workflow specific elements
+    logger.debug("Processing workflow-specific elements")
     handle_resource_transitions(bpmn, to_handle_temp_resources)
     handle_workflow_operators(bpmn, to_handle_temp_gateways)
     handle_event_triggers(bpmn, to_handle_temp_triggers)
     handle_workflow_subprocesses(
         net, bpmn, to_handle_subprocesses, transform_petrinet_to_bpmn
     )
+    logger.debug("Completed workflow-specific element processing")
 
     # handle remaining arcs
     for arc in net.arcs:
@@ -150,8 +170,10 @@ def transform_petrinet_to_bpmn(net: Net):
         bpmn.add_flow(source, target)
 
     # Postprocessing
+    logger.debug("Starting postprocessing")
     remove_silent_tasks(bpmn)
     remove_unnecessary_gateways(bpmn)
+    logger.debug(f"Transformation completed - BPMN has {len(bpmn._flatten_node_typ_map())} nodes and {len(bpmn.flows)} flows")
 
     return bpmn_general
 
@@ -167,8 +189,10 @@ def apply_preprocessing(net: Net, funcs: list[Callable[[Net], None]]):
 
 def pnml_to_bpmn(pnml: Pnml):
     """Process and transform a petri net to bpmn."""
+    logger.debug("Starting pnml_to_bpmn")
     net = pnml.net
-
+    
+    logger.debug("Applying preprocessing steps")
     apply_preprocessing(
         net,
         [
@@ -178,7 +202,12 @@ def pnml_to_bpmn(pnml: Pnml):
             event_trigger.split_event_triggers,
         ],
     )
+    logger.debug("Preprocessing completed")
+    
     bpmn = transform_petrinet_to_bpmn(net)
+    
+    logger.debug("Annotating resources")
     annotate_resources(net, bpmn)
+    logger.debug("pnml_to_bpmn completed")
     return bpmn
 

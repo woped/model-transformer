@@ -1,5 +1,6 @@
 """Transform OR-Gates into a combination of AND- and XOR-Gates."""
 
+import logging
 from typing import cast
 
 from app.transform.exceptions import ORGatewayDetectionIssue
@@ -13,6 +14,8 @@ from app.transform.transformer.models.bpmn.bpmn import (
     XorGateway,
 )
 from app.transform.transformer.utility.utility import create_arc_name
+
+logger = logging.getLogger(__name__)
 
 
 def traverse_matching_gw(
@@ -231,14 +234,17 @@ def inclusive_gws_to_parallel_gws(bpmn: Process, gws: list[InclusiveGatewayBridg
 
 def replace_inclusive_gateways(in_bpmn: Process):
     """Replace OR gateways with a combination of AND- and XOR-Gateways."""
+    logger.debug("Replacing inclusive (OR) gateways")
     nodes = in_bpmn._flatten_node_typ_map()
     inclusive_gateways: list[OrGateway] = [
         node for node in nodes if isinstance(node, OrGateway)
     ]
+    logger.debug(f"Found {len(inclusive_gateways)} inclusive gateways")
     if len(inclusive_gateways) == 0:
         return
 
     matched_inclusive_bridges = find_matching_gateways(in_bpmn, inclusive_gateways)
+    logger.debug(f"Matched {len(matched_inclusive_bridges)} inclusive gateway pairs")
     parallel_bridges = inclusive_gws_to_parallel_gws(in_bpmn, matched_inclusive_bridges)
 
     for bridge in parallel_bridges:

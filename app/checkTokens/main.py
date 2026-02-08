@@ -13,9 +13,7 @@ import os
 import pytz
 from datetime import datetime, timedelta
 
-from app.logging_config import setup_logging
-
-logger = setup_logging(logging.INFO, __name__)
+logger = logging.getLogger(__name__)
 
 GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 = os.getenv( "GCP_SERVICE_ACCOUNT_CERTIFICATE" )
 if( GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 is None ):

@@ -1,5 +1,7 @@
 """Module for handling participants annotations."""
 
+import logging
+
 from app.transform.exceptions import UnnamedLane
 from app.transform.transformer.models.bpmn.bpmn import Process, UserTask
 from app.transform.transformer.models.pnml.base import (
@@ -9,6 +11,8 @@ from app.transform.transformer.models.pnml.base import (
     ToolspecificGlobal,
 )
 from app.transform.transformer.models.pnml.pnml import Net
+
+logger = logging.getLogger(__name__)
 
 
 def find_subprocess_participants(
@@ -25,7 +29,9 @@ def find_subprocess_participants(
 
 def create_participant_mapping(bpmn: Process):
     """Find each resource name per UserTask (Also in subprocesses)."""
+    logger.debug("Creating participant mapping")
     if not bpmn.lane_sets:
+        logger.debug("No lane sets found, skipping participant mapping")
         return
     # [lane_name; node_name]
     participant_mapping: dict[str, list[str]] = {}
@@ -48,13 +54,16 @@ def create_participant_mapping(bpmn: Process):
         )
 
     bpmn._participant_mapping = reverse_participant_mapping
+    logger.debug(f"Created participant mapping with {len(reverse_participant_mapping)} entries")
 
 
 def set_global_toolspecifi(
     net: Net, participant_mapping: dict[str, str], organization: str
 ):
     """Creates the toolspecific element for all possible roles after transformation."""
+    logger.debug(f"Setting global toolspecific for organization: {organization}")
     if len(participant_mapping) == 0:
+        logger.debug("No participant mapping provided, skipping toolspecific")
         return
     possible_roles = {lane_name for lane_name in participant_mapping.values()}
     net.toolspecific_global = ToolspecificGlobal(
@@ -63,4 +72,5 @@ def set_global_toolspecifi(
             units=[OrganizationUnit(name=organization)],
         )
     )
+    logger.debug(f"Set {len(possible_roles)} roles in toolspecific")
 

@@ -1,5 +1,6 @@
 """PNML models."""
 
+import logging
 from pathlib import Path
 from typing import cast
 
@@ -32,6 +33,8 @@ from app.transform.transformer.utility.utility import (
     create_arc_name,
     create_silent_node_name,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class Transition(NetElement, tag="transition"):
@@ -359,9 +362,13 @@ class Pnml(BaseModel, tag="pnml"):
 
     def to_string(self) -> str:
         """Return string of net instance as serialized XML."""
+        logger.debug("Serializing PNML to XML string")
         try:
-            return cast(str, self.to_xml(encoding="unicode"))
-        except Exception:
+            xml_str = cast(str, self.to_xml(encoding="unicode"))
+            logger.debug(f"Successfully serialized PNML to XML ({len(xml_str)} characters)")
+            return xml_str
+        except Exception as e:
+            logger.error(f"Failed to serialize PNML: {e}", exc_info=True)
             raise PrivateInternalException("Can't convert pnml to string.")
 
     def write_to_file(self, path: str):
@@ -371,16 +378,20 @@ class Pnml(BaseModel, tag="pnml"):
     @staticmethod
     def from_xml_str(xml_content: str):
         """Return a petri net from a XML string."""
+        logger.debug("Parsing PNML from XML string")
         try:
             tree = fromstring(xml_content)
             net = Pnml.from_xml_tree(tree)
+            logger.debug(f"Successfully parsed PNML with net ID: {net.net.id if net.net else 'N/A'}")
             return net
-        except Exception:
+        except Exception as e:
+            logger.error(f"Failed to parse PNML XML: {e}", exc_info=True)
             raise InvalidInputXML()
 
     @staticmethod
     def from_file(path: str):
         """Return a petri net from a file."""
+        logger.debug(f"Loading PNML from file: {path}")
         return Pnml.from_xml_str(Path(path).read_text())
 
     @staticmethod

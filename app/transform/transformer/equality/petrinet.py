@@ -1,9 +1,13 @@
 """Methods to compare petri nets by comparing all nodes of all subprocesses."""
 
+import logging
+
 from app.transform.exceptions import PrivateInternalException
 from app.transform.transformer.equality.utils import create_type_dict, to_comp_string
 from app.transform.transformer.models.pnml.base import NetElement, ToolspecificGlobal
 from app.transform.transformer.models.pnml.pnml import Arc, Net
+
+logger = logging.getLogger(__name__)
 
 
 def petri_net_element_to_comp_value(e: NetElement | Arc):
@@ -40,12 +44,16 @@ def get_all_nets_by_id(pn: Net, m: dict[str, Net]):
 
 def compare_pnml(pn1: Net, pn2: Net):
     """Returns a boolean if the diagrams are equal and an optional error message."""
+    logger.debug("Comparing two Petri net models")
     pn1_nets: dict[str, Net] = {}
     get_all_nets_by_id(pn1, pn1_nets)
     pn2_nets: dict[str, Net] = {}
     get_all_nets_by_id(pn2, pn2_nets)
+    
+    logger.debug(f"PN1 has {len(pn1_nets)} nets, PN2 has {len(pn2_nets)} nets")
 
     if pn1_nets.keys() != pn2_nets.keys():
+        logger.warning("PNML comparison failed: Different subnet IDs")
         return False, "Different subnet IDs"
 
     errors = []
@@ -68,6 +76,8 @@ def compare_pnml(pn1: Net, pn2: Net):
                 )
     if len(errors) > 0:
         joined_errors = "\n".join(errors)
+        logger.warning(f"PNML comparison failed with {len(errors)} differences")
         return False, f"Issues petrinet equality for types:\n{joined_errors}"
+    logger.debug("PNML comparison successful: Models are equal")
     return True, None
 

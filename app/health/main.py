@@ -9,9 +9,7 @@ import logging
 import functions_framework
 from flask import jsonify, make_response
 
-from app.logging_config import setup_logging
-
-logger = setup_logging(logging.INFO, __name__)
+logger = logging.getLogger(__name__)
 
 @functions_framework.http
 def get_health(request):

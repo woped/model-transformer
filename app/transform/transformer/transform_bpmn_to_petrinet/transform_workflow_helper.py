@@ -1,5 +1,6 @@
 """Helper methods for bpmn to workflow net."""
 
+import logging
 from collections.abc import Callable
 from typing import cast
 
@@ -28,6 +29,8 @@ from app.transform.transformer.models.pnml.pnml import (
 from app.transform.transformer.models.pnml.workflow import WorkflowBranchingType
 from app.transform.transformer.utility.bpmn import find_end_events, find_start_events
 from app.transform.transformer.utility.utility import create_arc_name, create_silent_node_name
+
+logger = logging.getLogger(__name__)
 
 
 def create_workflow_operator_helper_transition(

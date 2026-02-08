@@ -1,5 +1,6 @@
 """BPMN objects and handling."""
 
+import logging
 from pathlib import Path
 from typing import cast
 
@@ -28,6 +29,8 @@ from app.transform.transformer.models.bpmn.bpmn_graphics import (
     DIWaypoint,
 )
 from app.transform.transformer.utility.utility import create_arc_name, get_tag_name
+
+logger = logging.getLogger(__name__)
 
 supported_elements = {
     "eventbasedGateway",
@@ -470,6 +473,7 @@ class BPMN(BPMNNamespace, tag="definitions"):
     @staticmethod
     def from_xml(xml_content: str):
         """Return a BPMN from a XML string."""
+        logger.debug("Parsing BPMN from XML string")
         try:
             tree = fromstring(xml_content)
             used_tags: set[str] = set()
@@ -479,21 +483,28 @@ class BPMN(BPMNNamespace, tag="definitions"):
                     amount_of_participants += 1
                 used_tags.add(get_tag_name(elem))
             unhandled_tags = used_tags.difference(supported_tags)
+            logger.debug(f"Found {len(used_tags)} unique BPMN tags, {amount_of_participants} participants")
             if amount_of_participants > 1:
                 raise NotSupportedBPMNElement(
                     "participant is only supported when there is exactly one pool in the BPMN model. Your BPMN is not compliant with this restriction."
                 )
             if len(unhandled_tags) > 0:
+                logger.warning(f"BPMN contains unsupported tags: {unhandled_tags}")
                 raise NotSupportedBPMNElement(str(unhandled_tags))
-            return BPMN.from_xml_tree(tree)
+            bpmn = BPMN.from_xml_tree(tree)
+            logger.debug(f"Successfully parsed BPMN with process ID: {bpmn.process.id if bpmn.process else 'N/A'}")
+            return bpmn
         except NotSupportedBPMNElement as e:
+            logger.error(f"BPMN contains unsupported elements: {e}")
             raise e
-        except Exception:
+        except Exception as e:
+            logger.error(f"Failed to parse BPMN XML: {e}", exc_info=True)
             raise InvalidInputXML()
 
     @staticmethod
     def from_file(path: str):
         """Return a BPMN from a file path."""
+        logger.debug(f"Loading BPMN from file: {path}")
         content = Path(path).read_text()
         return BPMN.from_xml(content)
 

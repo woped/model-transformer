@@ -9,8 +9,6 @@ import functions_framework
 import requests
 from flask import jsonify, make_response
 
-from app.logging_config import setup_logging
-
 from app.transform.exceptions import (
     KnownException,
     MissingEnvironmentVariable,
@@ -30,7 +28,7 @@ from app.transform.transformer.utility.utility import clean_xml_string
 
 CHECK_TOKEN_URL = "https://europe-west3-woped-422510.cloudfunctions.net/checkTokens"
 
-logger = setup_logging(logging.INFO, __name__)
+logger = logging.getLogger(__name__)
 
 is_force_std_xml_active = os.getenv("FORCE_STD_XML")
 if is_force_std_xml_active is None:
@@ -95,9 +93,21 @@ def handle_transformation(request: flask.Request):
     if transform_direction == "bpmntopnml":
         logger.info("Transform direction bpmntopnml")
         bpmn_xml_content = request.form["bpmn"]
+        logger.debug(f"Received BPMN XML content with length: {len(bpmn_xml_content)} characters")
+        
+        logger.debug("Starting BPMN XML parsing")
         bpmn = BPMN.from_xml(bpmn_xml_content)
+        logger.debug(f"BPMN parsed successfully - Process ID: {bpmn.process.id if bpmn.process else 'N/A'}")
+        
+        logger.debug("Starting BPMN to workflow net transformation")
         transformed_pnml = bpmn_to_workflow_net(bpmn)
-        response = jsonify({"pnml": clean_xml_string(transformed_pnml.to_string())})
+        logger.debug(f"Transformation completed - Net contains {len(transformed_pnml.net.places)} places and {len(transformed_pnml.net.transitions)} transitions")
+        
+        logger.debug("Generating PNML XML string")
+        pnml_string = transformed_pnml.to_string()
+        logger.debug(f"PNML XML generated with length: {len(pnml_string)} characters")
+        
+        response = jsonify({"pnml": clean_xml_string(pnml_string)})
         response.headers["Access-Control-Allow-Origin"] = "*"
         return response
     elif transform_direction == "pnmltobpmn":

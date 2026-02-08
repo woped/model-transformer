@@ -5,6 +5,8 @@ AND-XOR and XOR-AND-Gateways will be splitted to allow the transformation to BPM
 When gateways have names (implicit action) a explicit transtition will be added.
 """
 
+import logging
+
 from app.transform.transformer.models.pnml.base import Name
 from app.transform.transformer.models.pnml.pnml import Arc, Net, Transition
 from app.transform.transformer.models.pnml.transform_helper import (
@@ -18,6 +20,8 @@ from app.transform.transformer.transform_petrinet_to_bpmn.workflow_helper import
     find_workflow_operators,
 )
 from app.transform.transformer.utility.pnml import generate_explicit_transition_id
+
+logger = logging.getLogger(__name__)
 
 
 def handle_combined_operator(net: Net, wo: WorkflowOperatorWrapper):
@@ -210,7 +214,9 @@ def handle_single_operator(net: Net, wo: WorkflowOperatorWrapper):
 
 def handle_workflow_operators(net: Net):
     """Handle workflowoperators by replacing them with temp nodes and extracting task."""
+    logger.debug("Preprocessing workflow operators")
     wf_operators = find_workflow_operators(net)
+    logger.debug(f"Found {len(wf_operators)} workflow operators to preprocess")
     for o in wf_operators:
         if o.t in [
             WorkflowBranchingType.AndJoin,
