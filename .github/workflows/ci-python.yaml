@@ -13,7 +13,7 @@ jobs:
   linting:
    uses: woped/devops/.github/workflows/linting.yaml@main
   testing_pytest:
-    uses: woped/devops/.github/workflows/testing_pytest.yaml@main
+    uses: woped/devops/.github/workflows/testing_flask.yaml@main
   sonar_python:
     needs: testing_pytest
     uses: woped/devops/.github/workflows/sonar_python.yaml@main
