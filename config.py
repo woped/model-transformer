@@ -1,6 +1,17 @@
-"""Flask configuration classes."""
+"""Flask configuration classes and environment setup."""
 
 import os
+import sys
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Add the root of the project to sys.path
+PROJECT_ROOT = Path(__file__).parent.absolute()
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 
 class Config:
@@ -31,6 +42,9 @@ class TestingConfig(Config):
 
     ENV_NAME = "testing"
     TESTING = True
+    LOG_LEVEL = "DEBUG"  # Enable debug logging for tests
+    # Disable CSRF for testing
+    WTF_CSRF_ENABLED = False
 
 
 class ProductionConfig(Config):
