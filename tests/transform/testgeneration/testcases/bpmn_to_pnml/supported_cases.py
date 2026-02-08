@@ -6,6 +6,7 @@ from tests.transform.testgeneration.pnml.utility import create_petri_net
 from app.transform.transformer.models.bpmn.bpmn import (
     BPMN,
     EndEvent,
+    ServiceTask,
     StartEvent,
     Task,
     UserTask,
@@ -42,12 +43,25 @@ def gen_task(task_cls, case):
         case,
         [[StartEvent(id=se_id), task_cls(id=task_id, name=task_id), EndEvent(id=ee_id)]],
     )
+    
+    # Determine the name prefix based on task type
+    if task_cls == UserTask:
+        task_name = f"[UserTask] {task_id}"
+        # UserTasks get workflow resource markings even without pools
+        transition = Transition.create(task_id, task_name).mark_as_workflow_resource('', '')
+    elif task_cls == ServiceTask:
+        task_name = f"[ServiceTask] {task_id}"
+        transition = Transition.create(task_id, task_name)
+    else:
+        task_name = task_id
+        transition = Transition.create(task_id, task_name)
+    
     net = create_petri_net(
         case,
         [
             [
                 Place(id=se_id),
-                Transition.create(task_id, task_id),
+                transition,
                 Place(id=ee_id),
             ]
         ],
