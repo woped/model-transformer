@@ -1,4 +1,4 @@
--r base.txt
+-r test.txt
 
 pytest==8.2.2
 ruff==0.5.1
