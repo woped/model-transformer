@@ -4,7 +4,7 @@ This module provides version information, application metadata, and other
 details used by the Docker build and deployment workflows.
 """
 
-__version__ = "0.0.0"  # Dynamically set by semver workflow in CI/CD
+__version__ = "2.0.0"
 __app_name__ = "model-transformer"
 __app_title__ = "BPMN-PNML Model Transformer"
 __description__ = (
