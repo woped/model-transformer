@@ -4,10 +4,6 @@ import logging
 from pathlib import Path
 from typing import cast
 
-from defusedxml.ElementTree import fromstring
-from pydantic import PrivateAttr
-from pydantic_xml import attr, element
-
 from app.transform.exceptions import (
     InternalTransformationException,
     InvalidInputXML,
@@ -29,6 +25,9 @@ from app.transform.transformer.models.bpmn.bpmn_graphics import (
     DIWaypoint,
 )
 from app.transform.transformer.utility.utility import create_arc_name, get_tag_name
+from defusedxml.ElementTree import fromstring
+from pydantic import PrivateAttr
+from pydantic_xml import attr, element
 
 logger = logging.getLogger(__name__)
 
@@ -490,7 +489,8 @@ class BPMN(BPMNNamespace, tag="definitions"):
             )
             if amount_of_participants > 1:
                 raise NotSupportedBPMNElement(
-                    "participant is only supported when there is exactly one pool in the BPMN model. Your BPMN is not compliant with this restriction."
+                    "participant is only supported when there is exactly one pool in "
+                    "the BPMN model. Your BPMN is not compliant with this restriction."
                 )
             if len(unhandled_tags) > 0:
                 logger.warning(f"BPMN contains unsupported tags: {unhandled_tags}")

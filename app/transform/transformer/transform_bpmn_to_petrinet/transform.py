@@ -3,22 +3,19 @@
 import logging
 from collections.abc import Callable
 
-from app.transform.exceptions import (
-    InternalTransformationException,
-    NotSupportedBPMNElement,
-)
+from app.transform.exceptions import NotSupportedBPMNElement
 from app.transform.transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from app.transform.transformer.models.bpmn.bpmn import (
-    EventGateway,
     BPMN,
     AndGateway,
     EndEvent,
+    EventGateway,
     GenericTask,
     IntermediateCatchEvent,
     OrGateway,
     Process,
-    StartEvent,
     ServiceTask,
+    StartEvent,
     UserTask,
     XorGateway,
 )
@@ -157,7 +154,10 @@ def transform_bpmn_to_petrinet(
     )
 
     logger.debug(
-        f"Categorized nodes - Gateways: {len(to_handle_gateways)}, Subprocesses: {len(to_handle_subprocesses)}, Triggers: {len(to_handle_triggers)}, User tasks: {len(to_handle_user_tasks)}, Regular nodes: {len(nodes)}"
+        f"Categorized nodes - Gateways: {len(to_handle_gateways)}, "
+        f"Subprocesses: {len(to_handle_subprocesses)}, "
+        f"Triggers: {len(to_handle_triggers)}, "
+        f"User tasks: {len(to_handle_user_tasks)}, Regular nodes: {len(nodes)}"
     )
 
     # handle normals nodes

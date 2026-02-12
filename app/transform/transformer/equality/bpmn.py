@@ -5,12 +5,7 @@ import logging
 from app.transform.exceptions import PrivateInternalException
 from app.transform.transformer.equality.utils import create_type_dict, to_comp_string
 from app.transform.transformer.models.bpmn.base import GenericBPMNNode
-from app.transform.transformer.models.bpmn.bpmn import (
-    BPMN,
-    Flow,
-    LaneSet,
-    Process,
-)
+from app.transform.transformer.models.bpmn.bpmn import BPMN, Flow, LaneSet, Process
 
 logger = logging.getLogger(__name__)
 

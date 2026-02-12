@@ -3,8 +3,6 @@
 import logging
 from collections.abc import Callable
 
-from pydantic import BaseModel, Field
-
 from app.transform.exceptions import (
     InternalTransformationException,
     SubprocessWrongInnerSourceSinkDegree,
@@ -33,9 +31,8 @@ from app.transform.transformer.models.pnml.transform_helper import (
     XORHelperPNML,
 )
 from app.transform.transformer.models.pnml.workflow import WorkflowBranchingType
-from app.transform.transformer.utility.pnml import (
-    generate_subprocess_inner_id,
-)
+from app.transform.transformer.utility.pnml import generate_subprocess_inner_id
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 

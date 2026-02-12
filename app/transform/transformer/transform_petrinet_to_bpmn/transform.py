@@ -125,7 +125,9 @@ def transform_petrinet_to_bpmn(net: Net):
 
     logger.debug(f"Processing {len(places)} places and {len(transitions)} transitions")
     logger.debug(
-        f"Workflow elements - Gateways: {len(to_handle_temp_gateways)}, Triggers: {len(to_handle_temp_triggers)}, Resources: {len(to_handle_temp_resources)}"
+        f"Workflow elements - Gateways: {len(to_handle_temp_gateways)}, "
+        f"Triggers: {len(to_handle_temp_triggers)}, "
+        f"Resources: {len(to_handle_temp_resources)}"
     )
 
     # handle normal places

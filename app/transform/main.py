@@ -1,21 +1,20 @@
 """API to transform a given model into a selected direction."""
 
+import logging
 import os
 import time
-import logging
 
 import flask
 import requests
-from flask import jsonify, make_response
 
 from app.transform.exceptions import (
     KnownException,
     MissingEnvironmentVariable,
+    NoRequestTokensAvailable,
     PrivateInternalException,
     TokenCheckUnsuccessful,
     UnexpectedError,
     UnexpectedQueryParameter,
-    NoRequestTokensAvailable,
 )
 from app.transform.transformer.models.bpmn.bpmn import BPMN
 from app.transform.transformer.models.pnml.pnml import Pnml
@@ -24,6 +23,7 @@ from app.transform.transformer.transform_bpmn_to_petrinet.transform import (
 )
 from app.transform.transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
 from app.transform.transformer.utility.utility import clean_xml_string
+from flask import jsonify, make_response
 
 CHECK_TOKEN_URL = "https://europe-west3-woped-422510.cloudfunctions.net/checkTokens"
 
@@ -59,9 +59,9 @@ def post_transform(request: flask.Request):
             response = make_response()
             response.headers["Access-Control-Allow-Origin"] = "*"
             response.headers["Access-Control-Allow-Methods"] = "POST,OPTIONS"
-            response.headers["Access-Control-Allow-Headers"] = (
-                "Content-Type,Authorization"
-            )
+            response.headers[
+                "Access-Control-Allow-Headers"
+            ] = "Content-Type,Authorization"
             return response
 
         response = handle_transformation(request)
@@ -76,7 +76,7 @@ def post_transform(request: flask.Request):
         # Internal exception with a generic description to the end user.
         logger.error("Internal exception during transform", exc_info=True)
         return str(e), 400
-    except Exception as e:
+    except Exception:
         # Not handled exception should be handled in the future.
         logger.exception("Unexpected exception during transform")
         return str(UnexpectedError()), 400
@@ -96,7 +96,8 @@ def handle_transformation(request: flask.Request):
             )
             raise KnownException(
                 1001,
-                "Missing required form field 'bpmn'. Please send the BPMN XML as form-data with key 'bpmn'."
+                "Missing required form field 'bpmn'. Please send the BPMN XML "
+                "as form-data with key 'bpmn'.",
             )
         bpmn_xml_content = request.form["bpmn"]
         logger.debug(
@@ -130,7 +131,8 @@ def handle_transformation(request: flask.Request):
             )
             raise KnownException(
                 1002,
-                "Missing required form field 'pnml'. Please send the PNML XML as form-data with key 'pnml'."
+                "Missing required form field 'pnml'. Please send the PNML XML "
+                "as form-data with key 'pnml'.",
             )
         pnml_xml_content = request.form["pnml"]
         pnml = Pnml.from_xml_str(pnml_xml_content)
