@@ -13,7 +13,7 @@ from app.transform.transformer.models.bpmn.bpmn import (
     Task,
     XorGateway,
 )
-from app.transform.transformer.models.pnml.pnml import Net, Pnml
+from app.transform.transformer.models.pnml.pnml import Net, Pnml, Transition
 from app.transform.transformer.models.pnml.transform_helper import (
     GatewayHelperPNML,
     TriggerHelperPNML,
@@ -58,7 +58,7 @@ def remove_unnecessary_gateways(bpmn: Process):
     while is_rerun_reduce:
         is_rerun_reduce = False
 
-        gw_nodes = [
+        gw_nodes: list[Gateway] = [
             node
             for node in bpmn._flatten_node_typ_map()
             if issubclass(type(node), Gateway)
@@ -101,20 +101,20 @@ def transform_petrinet_to_bpmn(net: Net):
     transitions.difference_update(to_handle_subprocesses)
     logger.debug(f"Found {len(to_handle_subprocesses)} subprocesses")
 
-    to_handle_temp_gateways = [
+    to_handle_temp_gateways: list[GatewayHelperPNML] = [
         elem
         for elem in net._flatten_node_typ_map()
         if isinstance(elem, GatewayHelperPNML)
     ]
 
-    to_handle_temp_triggers = [
+    to_handle_temp_triggers: list[TriggerHelperPNML] = [
         elem
         for elem in net._flatten_node_typ_map()
         if isinstance(elem, TriggerHelperPNML)
     ]
 
     # Only transitions could be  be mapped to usertasks
-    to_handle_temp_resources = [
+    to_handle_temp_resources: list[Transition] = [
         transition
         for transition in transitions
         if transition.is_workflow_resource()

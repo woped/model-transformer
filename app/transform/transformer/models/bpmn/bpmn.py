@@ -317,13 +317,13 @@ class Process(GenericBPMNNode):
 
     def change_node_id(self, node: GenericBPMNNode, new_id: str):
         """Change node id and update connected flows."""
-        incoming_flows = self._temp_node_id_to_incoming.get(node.id, [])
-        incoming_flows_id_map = [
+        incoming_flows: list[Flow] = self._temp_node_id_to_incoming.get(node.id, [])
+        incoming_flows_id_map: list[tuple[str, str, str, str | None]] = [
             (f.id, f.sourceRef, new_id, f.name) for f in incoming_flows
         ]
 
-        outgoing_flows = self._temp_node_id_to_outgoing.get(node.id, [])
-        outgoing_flows_id_map = [
+        outgoing_flows: list[Flow] = self._temp_node_id_to_outgoing.get(node.id, [])
+        outgoing_flows_id_map: list[tuple[str, str, str, str | None]] = [
             (f.id, new_id, f.targetRef, f.name) for f in outgoing_flows
         ]
 

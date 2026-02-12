@@ -56,7 +56,7 @@ def compare_pnml(pn1: Net, pn2: Net):
         logger.warning("PNML comparison failed: Different subnet IDs")
         return False, "Different subnet IDs"
 
-    errors = []
+    errors: list[str] = []
     for net_id, net1 in pn1_nets.items():
         net2 = pn2_nets[net_id]
 

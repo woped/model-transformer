@@ -324,14 +324,14 @@ class Net(BaseModel, tag="net"):
 
     def get_incoming_and_remove_arcs(self, transition: NetElement):
         """Get a copy of each incoming arc and remove original arcs."""
-        incoming_arcs = [arc.model_copy() for arc in self.get_incoming(transition.id)]
+        incoming_arcs: list[Arc] = [arc.model_copy() for arc in self.get_incoming(transition.id)]
         for to_remove_arc in incoming_arcs:
             self.remove_arc(to_remove_arc)
         return incoming_arcs
 
     def get_outgoing_and_remove_arcs(self, transition: NetElement):
         """Get a copy of each outgoing arc and remove original arcs."""
-        outgoing_arcs = [arc.model_copy() for arc in self.get_outgoing(transition.id)]
+        outgoing_arcs: list[Arc] = [arc.model_copy() for arc in self.get_outgoing(transition.id)]
         for to_remove_arc in outgoing_arcs:
             self.remove_arc(to_remove_arc)
         return outgoing_arcs

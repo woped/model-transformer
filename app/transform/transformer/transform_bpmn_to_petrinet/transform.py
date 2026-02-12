@@ -71,7 +71,7 @@ def merge_single_triggers(net: Net):
             continue
 
         # not clear how to merge the following element of a split/join place
-        target_transitions = [
+        target_transitions: list[Transition] = [
             net.get_element(x.target) for x in net.get_outgoing(id=connecting_place.id)
         ]
         place_is_before_wf_split = all(

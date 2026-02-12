@@ -84,7 +84,7 @@ def split_and_gw_with_name(net: Net):
 
     This function also looks at possible Toolspecific annotations.
     """
-    and_gateways = [
+    and_gateways: list[Transition] = [
         t
         for t in net.transitions
         if (net.get_in_degree(t) > 1 or net.get_out_degree(t) > 1) and t.get_name()

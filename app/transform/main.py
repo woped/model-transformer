@@ -95,6 +95,7 @@ def handle_transformation(request: flask.Request):
                 f"Missing 'bpmn' field in form data. Received fields: {list(request.form.keys())}"
             )
             raise KnownException(
+                1001,
                 "Missing required form field 'bpmn'. Please send the BPMN XML as form-data with key 'bpmn'."
             )
         bpmn_xml_content = request.form["bpmn"]
@@ -128,6 +129,7 @@ def handle_transformation(request: flask.Request):
                 f"Missing 'pnml' field in form data. Received fields: {list(request.form.keys())}"
             )
             raise KnownException(
+                1002,
                 "Missing required form field 'pnml'. Please send the PNML XML as form-data with key 'pnml'."
             )
         pnml_xml_content = request.form["pnml"]

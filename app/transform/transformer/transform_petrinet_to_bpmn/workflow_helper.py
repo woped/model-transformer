@@ -220,7 +220,7 @@ def find_role_type_of_subprocess(net: Net, current_role: str | None = None):
 
     Should there be more than one role a exception will be thrown.
     """
-    to_handle_temp_resources = [
+    to_handle_temp_resources: list[NetElement] = [
         elem
         for elem in net._flatten_node_typ_map()
         if isinstance(elem, NetElement) and elem.is_workflow_resource()
@@ -244,7 +244,7 @@ def annotate_resources(net: Net, bpmn: BPMN):
     logger.debug("Annotating resources to BPMN lanes and participants")
     current_organization: str | None = None
     role_map: dict[str, list[str]] = {}
-    to_handle_temp_resources = [
+    to_handle_temp_resources: list[NetElement] = [
         elem
         for elem in net._flatten_node_typ_map()
         if isinstance(elem, NetElement) and elem.is_workflow_resource()

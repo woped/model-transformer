@@ -80,7 +80,7 @@ def compare_bpmn(bpmn1_comp: BPMN, bpmn2_comp: BPMN):
         logger.warning("BPMN comparison failed: Different organizations")
         return False, "Wrong organizations"
 
-    errors = []
+    errors: list[str] = []
     for bpmn_id, bpmn1 in bpmn1_processes.items():
         bpmn2 = bpmn2_processes[bpmn_id]
 
