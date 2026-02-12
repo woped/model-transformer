@@ -67,5 +67,9 @@ CONFIG_BY_NAME = {
 def get_config(config_name: str | None = None):
     """Resolve a configuration class by name."""
     if not config_name:
-        config_name = os.environ.get('FLASK_CONFIG') or os.environ.get('APP_ENV') or 'default'
+        config_name = (
+            os.environ.get('FLASK_CONFIG')
+            or os.environ.get('APP_ENV')
+            or 'default'
+        )
     return CONFIG_BY_NAME.get(config_name.lower(), Config)
