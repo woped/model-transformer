@@ -67,8 +67,10 @@ def compare_bpmn(bpmn1_comp: BPMN, bpmn2_comp: BPMN):
     get_all_processes_by_id(bpmn1_comp.process, bpmn1_processes)
     bpmn2_processes: dict[str, Process] = {}
     get_all_processes_by_id(bpmn2_comp.process, bpmn2_processes)
-    
-    logger.debug(f"BPMN1 has {len(bpmn1_processes)} processes, BPMN2 has {len(bpmn2_processes)} processes")
+
+    logger.debug(
+        f"BPMN1 has {len(bpmn1_processes)} processes, BPMN2 has {len(bpmn2_processes)} processes"
+    )
 
     if bpmn1_processes.keys() != bpmn2_processes.keys():
         logger.warning("BPMN comparison failed: Different process IDs")
@@ -108,4 +110,3 @@ keys 2:
         return False, f"Issues BPMN equality for types:\n{joined_errors}"
     logger.debug("BPMN comparison successful: Models are equal")
     return True, None
-

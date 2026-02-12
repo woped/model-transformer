@@ -105,12 +105,16 @@ class Toolspecific(BaseModel, tag="toolspecific"):
     def is_workflow_message(self):
         """Returns whether instance is a workflow message trigger."""
         return (
-            self.is_woped() and self.trigger and self.trigger.type is TriggerType.Message
+            self.is_woped()
+            and self.trigger
+            and self.trigger.type is TriggerType.Message
         )
 
     def is_workflow_time(self):
         """Returns whether instance is a workflow time trigger."""
-        return self.is_woped() and self.trigger and self.trigger.type is TriggerType.Time
+        return (
+            self.is_woped() and self.trigger and self.trigger.type is TriggerType.Time
+        )
 
     def is_workflow_resource(self):
         """Returns whether instance is a workflow resource trigger."""
@@ -245,4 +249,3 @@ class Inscription(BaseModel, tag="inscription"):
 
     text: str = element(tag="text")
     graphics: OffsetGraphics
-

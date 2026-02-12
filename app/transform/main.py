@@ -91,31 +91,45 @@ def handle_transformation(request: flask.Request):
     if transform_direction == "bpmntopnml":
         logger.info("Transform direction bpmntopnml")
         if "bpmn" not in request.form:
-            logger.error(f"Missing 'bpmn' field in form data. Received fields: {list(request.form.keys())}")
-            raise KnownException("Missing required form field 'bpmn'. Please send the BPMN XML as form-data with key 'bpmn'.")
+            logger.error(
+                f"Missing 'bpmn' field in form data. Received fields: {list(request.form.keys())}"
+            )
+            raise KnownException(
+                "Missing required form field 'bpmn'. Please send the BPMN XML as form-data with key 'bpmn'."
+            )
         bpmn_xml_content = request.form["bpmn"]
-        logger.debug(f"Received BPMN XML content with length: {len(bpmn_xml_content)} characters")
-        
+        logger.debug(
+            f"Received BPMN XML content with length: {len(bpmn_xml_content)} characters"
+        )
+
         logger.debug("Starting BPMN XML parsing")
         bpmn = BPMN.from_xml(bpmn_xml_content)
-        logger.debug(f"BPMN parsed successfully - Process ID: {bpmn.process.id if bpmn.process else 'N/A'}")
-        
+        logger.debug(
+            f"BPMN parsed successfully - Process ID: {bpmn.process.id if bpmn.process else 'N/A'}"
+        )
+
         logger.debug("Starting BPMN to workflow net transformation")
         transformed_pnml = bpmn_to_workflow_net(bpmn)
-        logger.debug(f"Transformation completed - Net contains {len(transformed_pnml.net.places)} places and {len(transformed_pnml.net.transitions)} transitions")
-        
+        logger.debug(
+            f"Transformation completed - Net contains {len(transformed_pnml.net.places)} places and {len(transformed_pnml.net.transitions)} transitions"
+        )
+
         logger.debug("Generating PNML XML string")
         pnml_string = transformed_pnml.to_string()
         logger.debug(f"PNML XML generated with length: {len(pnml_string)} characters")
-        
+
         response = jsonify({"pnml": clean_xml_string(pnml_string)})
         response.headers["Access-Control-Allow-Origin"] = "*"
         return response
     elif transform_direction == "pnmltobpmn":
         logger.info("Transform direction pnmltobpmn")
         if "pnml" not in request.form:
-            logger.error(f"Missing 'pnml' field in form data. Received fields: {list(request.form.keys())}")
-            raise KnownException("Missing required form field 'pnml'. Please send the PNML XML as form-data with key 'pnml'.")
+            logger.error(
+                f"Missing 'pnml' field in form data. Received fields: {list(request.form.keys())}"
+            )
+            raise KnownException(
+                "Missing required form field 'pnml'. Please send the PNML XML as form-data with key 'pnml'."
+            )
         pnml_xml_content = request.form["pnml"]
         pnml = Pnml.from_xml_str(pnml_xml_content)
         transformed_bpmn = pnml_to_bpmn(pnml)

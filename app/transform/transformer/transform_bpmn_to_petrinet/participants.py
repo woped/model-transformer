@@ -54,7 +54,9 @@ def create_participant_mapping(bpmn: Process):
         )
 
     bpmn._participant_mapping = reverse_participant_mapping
-    logger.debug(f"Created participant mapping with {len(reverse_participant_mapping)} entries")
+    logger.debug(
+        f"Created participant mapping with {len(reverse_participant_mapping)} entries"
+    )
 
 
 def set_global_toolspecifi(
@@ -73,4 +75,3 @@ def set_global_toolspecifi(
         )
     )
     logger.debug(f"Set {len(possible_roles)} roles in toolspecific")
-

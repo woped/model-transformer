@@ -34,4 +34,3 @@ def add_places_at_dangling_transitions(net: Net):
     handle_dangling_sources(net, sources)
 
     handle_dangling_sinks(net, sinks)
-

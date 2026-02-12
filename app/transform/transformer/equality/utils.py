@@ -1,4 +1,5 @@
 """Concatenates strings and groups elements by type."""
+
 from typing import Any
 from collections.abc import Callable
 

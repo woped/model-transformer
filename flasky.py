@@ -12,10 +12,11 @@ app = create_app()
 
 
 @app.cli.command("test")
-@click.option('--cov', is_flag=True, help="Show test coverage report.")
+@click.option("--cov", is_flag=True, help="Show test coverage report.")
 def test_command(cov):
     """Run all tests in the 'tests/' directory."""
     import pytest
+
     logger.info("Running test suite via CLI", extra={"coverage": bool(cov)})
     args = ["tests"]
     if cov:

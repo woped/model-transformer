@@ -23,4 +23,3 @@ class OffsetGraphics(BaseModel, tag="graphics"):
     """Graphics extension of BaseModel (+offset, dimension, position)."""
 
     offset: Coordinates = element("offset", default=Coordinates())
-

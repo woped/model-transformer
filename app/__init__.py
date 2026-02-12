@@ -14,18 +14,20 @@ from config import get_config
 
 def create_app(config_name: str | None = None) -> Flask:
     """Create and configure the Flask application.
-    
+
     Args:
         config_name: Configuration name (development, testing, production, default).
                     If None, uses FLASK_CONFIG or APP_ENV environment variable.
-    
+
     Returns:
         Configured Flask application instance.
     """
     app = Flask(__name__)
 
     if config_name is None:
-        config_name = os.environ.get('FLASK_CONFIG') or os.environ.get('APP_ENV') or 'default'
+        config_name = (
+            os.environ.get("FLASK_CONFIG") or os.environ.get("APP_ENV") or "default"
+        )
 
     config_class = get_config(config_name)
     app.config.from_object(config_class)
@@ -36,7 +38,16 @@ def create_app(config_name: str | None = None) -> Flask:
     logger = setup_logging(log_level, __name__)
 
     # Configure CORS
-    CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "OPTIONS"], "allow_headers": ["Content-Type"]}})
+    CORS(
+        app,
+        resources={
+            r"/*": {
+                "origins": "*",
+                "methods": ["GET", "POST", "OPTIONS"],
+                "allow_headers": ["Content-Type"],
+            }
+        },
+    )
 
     @app.before_request
     def capture_request_context():
@@ -80,6 +91,7 @@ def create_app(config_name: str | None = None) -> Flask:
 
     # Register blueprints
     from app.api import bp as api_bp
-    app.register_blueprint(api_bp, url_prefix='')
+
+    app.register_blueprint(api_bp, url_prefix="")
 
     return app

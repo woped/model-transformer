@@ -120,7 +120,9 @@ class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):
     @staticmethod
     def create_message_event(id: str, name: str | None = None):
         """Create a message event."""
-        return IntermediateCatchEvent(id=id, name=name, messageEvent=MessageEvent(id=""))
+        return IntermediateCatchEvent(
+            id=id, name=name, messageEvent=MessageEvent(id="")
+        )
 
     @staticmethod
     def create_time_event(id: str, name: str | None = None):
@@ -483,7 +485,9 @@ class BPMN(BPMNNamespace, tag="definitions"):
                     amount_of_participants += 1
                 used_tags.add(get_tag_name(elem))
             unhandled_tags = used_tags.difference(supported_tags)
-            logger.debug(f"Found {len(used_tags)} unique BPMN tags, {amount_of_participants} participants")
+            logger.debug(
+                f"Found {len(used_tags)} unique BPMN tags, {amount_of_participants} participants"
+            )
             if amount_of_participants > 1:
                 raise NotSupportedBPMNElement(
                     "participant is only supported when there is exactly one pool in the BPMN model. Your BPMN is not compliant with this restriction."
@@ -492,7 +496,9 @@ class BPMN(BPMNNamespace, tag="definitions"):
                 logger.warning(f"BPMN contains unsupported tags: {unhandled_tags}")
                 raise NotSupportedBPMNElement(str(unhandled_tags))
             bpmn = BPMN.from_xml_tree(tree)
-            logger.debug(f"Successfully parsed BPMN with process ID: {bpmn.process.id if bpmn.process else 'N/A'}")
+            logger.debug(
+                f"Successfully parsed BPMN with process ID: {bpmn.process.id if bpmn.process else 'N/A'}"
+            )
             return bpmn
         except NotSupportedBPMNElement as e:
             logger.error(f"BPMN contains unsupported elements: {e}")
@@ -578,4 +584,3 @@ class BPMN(BPMNNamespace, tag="definitions"):
 
         d.plane = p
         self.diagram = d
-

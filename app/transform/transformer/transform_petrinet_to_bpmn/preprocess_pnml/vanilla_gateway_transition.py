@@ -106,4 +106,3 @@ def split_and_gw_with_name(net: Net):
 
         # Remove name because already handled by explicit transition
         and_gateway.name = None
-

@@ -13,4 +13,3 @@ class ThrowEvent(NotSupportedNode, tag="intermediateThrowEvent"):
 
 class CatchEvent(NotSupportedNode, tag="intermediateCatchEvent"):
     """CatchEvent extension of unsupported node."""
-

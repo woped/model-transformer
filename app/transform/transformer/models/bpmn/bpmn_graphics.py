@@ -6,7 +6,6 @@ from app.transform.transformer.models.bpmn.base import ns_map
 from app.transform.transformer.utility.utility import BaseBPMNModel
 
 
-
 class DCBounds(BaseBPMNModel, tag="Bounds", ns="dc", nsmap=ns_map):
     """DCBounds extension of BaseBPMNModel with x,y, width and height xml attributes."""
 
@@ -21,10 +20,12 @@ class BPMNDINamespace(BaseBPMNModel, ns="bpmndi", nsmap=ns_map):
 
     pass
 
+
 class BPMNLabel(BPMNDINamespace, tag="BPMNLabel"):
     """BPMNLabel extension of BPMNIDNamespace with DCBounds attribute."""
 
     bounds: DCBounds | None = element(default=None)
+
 
 class BPMNDIObject(BPMNDINamespace):
     """BPMNDIObject extension of BPMNDINamespace with element xml attribute."""
@@ -33,14 +34,11 @@ class BPMNDIObject(BPMNDINamespace):
     label: BPMNLabel | None = element(default=None)
 
 
-
 class DIWaypoint(BaseBPMNModel, tag="waypoint", ns="di", nsmap=ns_map):
     """DIWaypoint extension of BaseBPMNModel with x and y xml attribute."""
 
     x: float = attr(default=0)
     y: float = attr(default=0)
-
-
 
 
 class BPMNEdge(BPMNDIObject, tag="BPMNEdge"):
@@ -66,4 +64,3 @@ class BPMNDiagram(BPMNDINamespace, tag="BPMNDiagram"):
     """BPMNDiagram extension of BPMNDINamespace with plane as attribute."""
 
     plane: BPMNPlane | None = element(default=None)
-

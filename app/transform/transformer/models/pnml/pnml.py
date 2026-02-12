@@ -187,7 +187,9 @@ class Net(BaseModel, tag="net"):
             self.add_arc(source, t)
             self.add_arc(t, target)
         elif isinstance(source, Transition) and isinstance(target, Transition):
-            p = self.add_element(Place(id=create_silent_node_name(source.id, target.id)))
+            p = self.add_element(
+                Place(id=create_silent_node_name(source.id, target.id))
+            )
             self.add_arc(source, p)
             self.add_arc(p, target)
         else:
@@ -365,7 +367,9 @@ class Pnml(BaseModel, tag="pnml"):
         logger.debug("Serializing PNML to XML string")
         try:
             xml_str = cast(str, self.to_xml(encoding="unicode"))
-            logger.debug(f"Successfully serialized PNML to XML ({len(xml_str)} characters)")
+            logger.debug(
+                f"Successfully serialized PNML to XML ({len(xml_str)} characters)"
+            )
             return xml_str
         except Exception as e:
             logger.error(f"Failed to serialize PNML: {e}", exc_info=True)
@@ -382,7 +386,9 @@ class Pnml(BaseModel, tag="pnml"):
         try:
             tree = fromstring(xml_content)
             net = Pnml.from_xml_tree(tree)
-            logger.debug(f"Successfully parsed PNML with net ID: {net.net.id if net.net else 'N/A'}")
+            logger.debug(
+                f"Successfully parsed PNML with net ID: {net.net.id if net.net else 'N/A'}"
+            )
             return net
         except Exception as e:
             logger.error(f"Failed to parse PNML XML: {e}", exc_info=True)
@@ -398,4 +404,3 @@ class Pnml(BaseModel, tag="pnml"):
     def generate_empty_net(id="new_net"):
         """Return empty petri net."""
         return Pnml(net=Net(id=id))
-

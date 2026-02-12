@@ -2,6 +2,7 @@
 
 This module defines a Google Cloud Function for RateLimiting the transform Endpoint.
 """
+
 import logging
 import base64
 import firebase_admin
@@ -15,21 +16,24 @@ from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
-GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 = os.getenv( "GCP_SERVICE_ACCOUNT_CERTIFICATE" )
-if( GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 is None ):
-    raise KeyError( "Env var GCP_SERVICE_ACCOUNT_CERTIFICATE not found!" )
+GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 = os.getenv("GCP_SERVICE_ACCOUNT_CERTIFICATE")
+if GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64 is None:
+    raise KeyError("Env var GCP_SERVICE_ACCOUNT_CERTIFICATE not found!")
 
 
-GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_BYTES = \
-    base64.b64decode(GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64)
+GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_BYTES = base64.b64decode(
+    GCP_SERVICE_ACCOUNT_CERTIFICATE_BASE64
+)
 
-GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING = \
-    GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_BYTES.decode('utf-8')
+GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING = (
+    GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_BYTES.decode("utf-8")
+)
 
 cred_dict = json.loads(GCP_SERVICE_ACCOUNT_CERTIFICATE_DECODED_STRING, strict=False)
 cred = credentials.Certificate(cred_dict)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
+
 
 @functions_framework.http
 def check_tokens(request):
@@ -48,23 +52,25 @@ def check_tokens(request):
 
         if tokens <= 0:
             if time_difference >= timedelta(hours=1):
-                doc_ref.update({
-                    "tokens": 99,
-                    "tokens_last_replenished": current_time
-                })
+                doc_ref.update({"tokens": 99, "tokens_last_replenished": current_time})
                 logger.info("Tokens replenished", extra={"tokens": 99})
                 return jsonify({"tokens": 99})
             else:
                 logger.warning("No tokens available and replenish not due")
-                return jsonify({"error":
-                                 "No tokens available, and last replenish" +
-                                 "was less than an hour ago." + 
-                                 "Please try again later."}), 429
+                return (
+                    jsonify(
+                        {
+                            "error": "No tokens available, and last replenish"
+                            + "was less than an hour ago."
+                            + "Please try again later."
+                        }
+                    ),
+                    429,
+                )
         else:
-            doc_ref.update({"tokens": tokens-1})
+            doc_ref.update({"tokens": tokens - 1})
             logger.info("Token consumed", extra={"tokens": tokens - 1})
-            return jsonify({"tokens": tokens-1}), 200
+            return jsonify({"tokens": tokens - 1}), 200
     else:
         logger.error("Token document not found")
         return jsonify({"error": "No document available"}), 404
-

@@ -75,4 +75,3 @@ def preprocess_gateways(bpmn: Process):
     remove_unnecessary_gateways(bpmn, gateways)
     add_pn_place_between_adjacent_gateways(bpmn, gateways)
     logger.debug("Gateway preprocessing completed")
-

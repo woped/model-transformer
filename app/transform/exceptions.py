@@ -154,10 +154,10 @@ class InvalidInputXML(KnownException):
         """Initialize an invalid input XML content exception."""
         super().__init__(11, "Seems like the input XML content is unsupported.")
 
+
 class NoRequestTokensAvailable(KnownException):
     """Exception raised when there are no available Tokens for transformation request."""
 
     def __init__(self) -> None:
         """Initialize an no request tokens available exception."""
         super().__init__(14, "No request tokens available. Please try again later.")
-        

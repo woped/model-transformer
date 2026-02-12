@@ -15,4 +15,3 @@ def find_start_events(process: Process):
 def find_end_events(process: Process):
     """Return all end events of a process."""
     return [ee for ee in process.end_events if ee.get_out_degree() == 0]
-

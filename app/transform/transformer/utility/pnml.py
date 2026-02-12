@@ -40,4 +40,3 @@ def find_triggers(net: Net):
         trigger for trigger in net_elements if trigger.is_workflow_event_trigger()
     ]
     return triggers
-

@@ -24,7 +24,9 @@ class RequestContextFilter(logging.Filter):
         try:
             record.http_method = request.method if request is not None else None
             record.http_path = request.path if request is not None else None
-            record.request_id = getattr(g, "request_id", None) if g is not None else None
+            record.request_id = (
+                getattr(g, "request_id", None) if g is not None else None
+            )
         except RuntimeError:
             record.http_method = None
             record.http_path = None
@@ -52,7 +54,9 @@ _LOG_FORMAT = (
 )
 
 
-def setup_logging(level: int = logging.INFO, logger_name: Optional[str] = None) -> logging.Logger:
+def setup_logging(
+    level: int = logging.INFO, logger_name: Optional[str] = None
+) -> logging.Logger:
     """Configure structured JSON logging.
 
     Args:
@@ -62,7 +66,9 @@ def setup_logging(level: int = logging.INFO, logger_name: Optional[str] = None) 
     root_logger = logging.getLogger()
     root_logger.setLevel(level)
 
-    if not any(isinstance(handler, logging.StreamHandler) for handler in root_logger.handlers):
+    if not any(
+        isinstance(handler, logging.StreamHandler) for handler in root_logger.handlers
+    ):
         console_handler = logging.StreamHandler()
         console_handler.addFilter(MetricsFilter())
         console_handler.addFilter(RequestContextFilter())

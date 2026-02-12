@@ -49,7 +49,7 @@ def compare_pnml(pn1: Net, pn2: Net):
     get_all_nets_by_id(pn1, pn1_nets)
     pn2_nets: dict[str, Net] = {}
     get_all_nets_by_id(pn2, pn2_nets)
-    
+
     logger.debug(f"PN1 has {len(pn1_nets)} nets, PN2 has {len(pn2_nets)} nets")
 
     if pn1_nets.keys() != pn2_nets.keys():
@@ -79,4 +79,3 @@ def compare_pnml(pn1: Net, pn2: Net):
         return False, f"Issues petrinet equality for types:\n{joined_errors}"
     logger.debug("PNML comparison successful: Models are equal")
     return True, None
-

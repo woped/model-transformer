@@ -67,4 +67,3 @@ def insert_temp_between_adjacent_mapped_transition(bpmn: Process):
                 linking_node,
                 outgoing_node,
             )
-

@@ -249,4 +249,3 @@ def replace_inclusive_gateways(in_bpmn: Process):
 
     for bridge in parallel_bridges:
         add_xors_and_activities(in_bpmn, bridge)
-

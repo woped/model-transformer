@@ -232,4 +232,3 @@ def handle_workflow_operators(net: Net):
             WorkflowBranchingType.AndJoinSplit,
         ]:
             handle_combined_operator(net, o)
-

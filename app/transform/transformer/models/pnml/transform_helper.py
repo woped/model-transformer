@@ -31,4 +31,3 @@ class MessageHelperPNML(TriggerHelperPNML):
 
 class TimeHelperPNML(TriggerHelperPNML):
     """Expected to be transformed to a BPMN-IntermediateCatchEvent(Time)."""
-

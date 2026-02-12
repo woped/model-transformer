@@ -85,8 +85,10 @@ def remove_unnecessary_gateways(bpmn: Process):
 def transform_petrinet_to_bpmn(net: Net):
     """Initiate the transformation of a preprocessed petri net to bpmn."""
     logger.debug(f"Starting transform_petrinet_to_bpmn for net: {net.id}")
-    logger.debug(f"Net contains {len(net.places)} places, {len(net.transitions)} transitions, {len(net.arcs)} arcs")
-    
+    logger.debug(
+        f"Net contains {len(net.places)} places, {len(net.transitions)} transitions, {len(net.arcs)} arcs"
+    )
+
     bpmn_general = BPMN.generate_empty_bpmn(net.id or "new_net")
     bpmn = bpmn_general.process
 
@@ -120,9 +122,11 @@ def transform_petrinet_to_bpmn(net: Net):
         and net.get_out_degree(transition) <= 1
     ]
     transitions.difference_update(to_handle_temp_resources)
-    
+
     logger.debug(f"Processing {len(places)} places and {len(transitions)} transitions")
-    logger.debug(f"Workflow elements - Gateways: {len(to_handle_temp_gateways)}, Triggers: {len(to_handle_temp_triggers)}, Resources: {len(to_handle_temp_resources)}")
+    logger.debug(
+        f"Workflow elements - Gateways: {len(to_handle_temp_gateways)}, Triggers: {len(to_handle_temp_triggers)}, Resources: {len(to_handle_temp_resources)}"
+    )
 
     # handle normal places
     for place in places:
@@ -173,7 +177,9 @@ def transform_petrinet_to_bpmn(net: Net):
     logger.debug("Starting postprocessing")
     remove_silent_tasks(bpmn)
     remove_unnecessary_gateways(bpmn)
-    logger.debug(f"Transformation completed - BPMN has {len(bpmn._flatten_node_typ_map())} nodes and {len(bpmn.flows)} flows")
+    logger.debug(
+        f"Transformation completed - BPMN has {len(bpmn._flatten_node_typ_map())} nodes and {len(bpmn.flows)} flows"
+    )
 
     return bpmn_general
 
@@ -191,7 +197,7 @@ def pnml_to_bpmn(pnml: Pnml):
     """Process and transform a petri net to bpmn."""
     logger.debug("Starting pnml_to_bpmn")
     net = pnml.net
-    
+
     logger.debug("Applying preprocessing steps")
     apply_preprocessing(
         net,
@@ -203,11 +209,10 @@ def pnml_to_bpmn(pnml: Pnml):
         ],
     )
     logger.debug("Preprocessing completed")
-    
+
     bpmn = transform_petrinet_to_bpmn(net)
-    
+
     logger.debug("Annotating resources")
     annotate_resources(net, bpmn)
     logger.debug("pnml_to_bpmn completed")
     return bpmn
-

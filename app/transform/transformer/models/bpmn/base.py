@@ -35,4 +35,3 @@ class GenericBPMNNode(BPMNNamespace):
 
 class Gateway(GenericBPMNNode):
     """Gateway extension of BPMN node."""
-

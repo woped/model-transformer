@@ -92,4 +92,3 @@ def split_event_triggers(net: Net):
             handle_split(net, trigger)
         else:
             raise InternalTransformationException("Should not happen.")
-

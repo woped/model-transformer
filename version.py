@@ -16,7 +16,7 @@ __organization__ = "woped"
 __repository__ = "https://github.com/woped/model-transformer"
 __license__ = "GPL-3.0"
 __license_url__ = "https://www.gnu.org/licenses/gpl-3.0.html"
-__python_version__ = "3.12"
+__python_version__ = "3.13"
 
 # Docker image metadata
 __docker_registry__ = "docker.io"
@@ -63,7 +63,7 @@ __build_info__ = {
 
 def get_version() -> str:
     """Return the current application version.
-    
+
     Returns:
         str: The application version string.
     """
@@ -72,7 +72,7 @@ def get_version() -> str:
 
 def get_full_version() -> str:
     """Return the full version string with app name.
-    
+
     Returns:
         str: Full version string in format: "app-name/version".
     """
@@ -81,7 +81,7 @@ def get_full_version() -> str:
 
 def get_docker_image_uri() -> str:
     """Return the full Docker image URI.
-    
+
     Returns:
         str: Full Docker image URI in format: registry/namespace/image:version.
     """
@@ -90,7 +90,7 @@ def get_docker_image_uri() -> str:
 
 def get_user_agent() -> str:
     """Return a user agent string for API requests.
-    
+
     Returns:
         str: User agent string.
     """

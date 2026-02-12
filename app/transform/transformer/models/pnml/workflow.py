@@ -52,4 +52,3 @@ class TransitionResource(BaseModel, tag="transitionResource"):
     organizationalUnitName: str = attr()
 
     graphics: PositionGraphics = element(default=PositionGraphics())
-

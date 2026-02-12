@@ -28,7 +28,10 @@ from app.transform.transformer.models.pnml.pnml import (
 )
 from app.transform.transformer.models.pnml.workflow import WorkflowBranchingType
 from app.transform.transformer.utility.bpmn import find_end_events, find_start_events
-from app.transform.transformer.utility.utility import create_arc_name, create_silent_node_name
+from app.transform.transformer.utility.utility import (
+    create_arc_name,
+    create_silent_node_name,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -283,7 +286,10 @@ def handle_subprocesses(
                 subprocess_transition.id, outer_out.id
             )
 
-        sub_se, sub_ee = find_start_events(subprocess)[0], find_end_events(subprocess)[0]
+        sub_se, sub_ee = (
+            find_start_events(subprocess)[0],
+            find_end_events(subprocess)[0],
+        )
         subprocess.change_node_id(sub_se, outer_in_id)
         subprocess.change_node_id(sub_ee, outer_out_id)
 
@@ -306,4 +312,3 @@ def handle_resource_annotations(
     for user_task in user_tasks:
         role = participant_mapping.get(user_task.id) or ""
         net.get_element(user_task.id).mark_as_workflow_resource(role, orga)
-

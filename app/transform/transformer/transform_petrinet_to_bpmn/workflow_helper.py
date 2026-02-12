@@ -306,5 +306,6 @@ def annotate_resources(net: Net, bpmn: BPMN):
             continue
         lanes.add(Lane(id=role_name, name=role_name, flowNodeRefs=set(node_refs)))
     bpmn.process.lane_sets = set([LaneSet(id="ls", lanes=lanes)])
-    logger.debug(f"Created {len(lanes)} lanes with organization: {current_organization}")
-
+    logger.debug(
+        f"Created {len(lanes)} lanes with organization: {current_organization}"
+    )
