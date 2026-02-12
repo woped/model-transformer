@@ -36,7 +36,7 @@ from pydantic_xml import attr, element
 logger = logging.getLogger(__name__)
 
 
-class Transition(NetElement, tag="transition"):
+class Transition(NetElement, tag="transition"):  # type: ignore[call-arg]
     """Transition extension of NetElement."""
 
     @staticmethod
@@ -45,7 +45,7 @@ class Transition(NetElement, tag="transition"):
         return Transition(id=id, name=Name(title=name) if name is not None else None)
 
 
-class Place(NetElement, tag="place"):
+class Place(NetElement, tag="place"):  # type: ignore[call-arg]
     """Place extension of NetElement."""
 
     @staticmethod
@@ -54,7 +54,7 @@ class Place(NetElement, tag="place"):
         return Place(id=id, name=Name(title=name) if name is not None else None)
 
 
-class Arc(BaseModel, tag="arc"):
+class Arc(BaseModel, tag="arc"):  # type: ignore[call-arg]
     """Arc extension of BaseModel (+ID,source,target,inscription...)."""
 
     source: str = attr()
@@ -68,13 +68,13 @@ class Arc(BaseModel, tag="arc"):
         return hash((type(self),) + (self.id,) + (self.source,) + (self.target,))
 
 
-class Page(BaseModel, tag="page"):
+class Page(BaseModel, tag="page"):  # type: ignore[call-arg]
     """Page extension of BaseModel (+Net)."""
 
     net: "Net"
 
 
-class Net(BaseModel, tag="net"):
+class Net(BaseModel, tag="net"):  # type: ignore[call-arg]
     """Net extension of BaseModel (+ID, type_field, places, transitions, arcs...).
 
     This class also contains internal helperstructures to improve the performance of
@@ -360,7 +360,7 @@ class Net(BaseModel, tag="net"):
 Page.model_rebuild()
 
 
-class Pnml(BaseModel, tag="pnml"):
+class Pnml(BaseModel, tag="pnml"):  # type: ignore[call-arg]
     """Petri net extension of base model."""
 
     net: Net

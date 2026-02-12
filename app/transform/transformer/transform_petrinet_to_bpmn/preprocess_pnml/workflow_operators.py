@@ -136,7 +136,7 @@ def handle_single_operator(net: Net, wo: WorkflowOperatorWrapper):
 
     toolspecific = wo.get_toolspecific()
     # Add new elements and connect to existing arcs
-    new_gateway = (
+    new_gateway: GatewayHelperPNML = (
         XORHelperPNML(id=wo.id, name=Name(title=wo.name))
         if wo.t in [WorkflowBranchingType.XorJoin, WorkflowBranchingType.XorSplit]
         else ANDHelperPNML(id=wo.id, name=Name(title=wo.name))

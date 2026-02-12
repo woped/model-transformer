@@ -77,40 +77,40 @@ supported_tags = {e.lower() for e in {*supported_elements, *ignored_elements}}
 
 
 # Gateways
-class EventGateway(Gateway, tag="eventBasedGateway"):
+class EventGateway(Gateway, tag="eventBasedGateway"):  # type: ignore[call-arg]
     """EventbasedGateway extension of gateways."""
 
 
-class XorGateway(Gateway, tag="exclusiveGateway"):
+class XorGateway(Gateway, tag="exclusiveGateway"):  # type: ignore[call-arg]
     """XOR extension of gateways."""
 
 
-class AndGateway(Gateway, tag="parallelGateway"):
+class AndGateway(Gateway, tag="parallelGateway"):  # type: ignore[call-arg]
     """AND extension of gateways."""
 
 
-class OrGateway(Gateway, tag="inclusiveGateway"):
+class OrGateway(Gateway, tag="inclusiveGateway"):  # type: ignore[call-arg]
     """OR extension of gateways."""
 
 
 # Events
-class StartEvent(GenericBPMNNode, tag="startEvent"):
+class StartEvent(GenericBPMNNode, tag="startEvent"):  # type: ignore[call-arg]
     """StartEvent extension of GenericBPMNNode."""
 
 
-class EndEvent(GenericBPMNNode, tag="endEvent"):
+class EndEvent(GenericBPMNNode, tag="endEvent"):  # type: ignore[call-arg]
     """EndEvent extension of GenericBPMNNode."""
 
 
-class MessageEvent(BPMNNamespace, tag="messageEventDefinition"):
+class MessageEvent(BPMNNamespace, tag="messageEventDefinition"):  # type: ignore[call-arg]
     """MessageEvent extension of BPMNNamespace."""
 
 
-class TimeEvent(BPMNNamespace, tag="timerEventDefinition"):
+class TimeEvent(BPMNNamespace, tag="timerEventDefinition"):  # type: ignore[call-arg]
     """TimeEvent extension of BPMNNamespace."""
 
 
-class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):
+class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):  # type: ignore[call-arg]
     """IntermediateCatchEvent extension of GenericBPMNNode."""
 
     messageEvent: MessageEvent | None = None
@@ -140,25 +140,25 @@ class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):
 # Participant related classes
 
 
-class Participant(GenericBPMNNode, tag="participant"):
+class Participant(GenericBPMNNode, tag="participant"):  # type: ignore[call-arg]
     """Information of global pool."""
 
     processRef: str = attr()
 
 
-class Collaboration(GenericBPMNNode, tag="collaboration"):
+class Collaboration(GenericBPMNNode, tag="collaboration"):  # type: ignore[call-arg]
     """Hold the information of the global pool."""
 
     participant: Participant | None = None
 
 
-class Lane(GenericBPMNNode, tag="lane"):
+class Lane(GenericBPMNNode, tag="lane"):  # type: ignore[call-arg]
     """Lane extension of GenericBPMNNode."""
 
     flowNodeRefs: set[str] = element("flowNodeRef", default_factory=set)
 
 
-class LaneSet(GenericBPMNNode, tag="laneSet"):
+class LaneSet(GenericBPMNNode, tag="laneSet"):  # type: ignore[call-arg]
     """Lane Set extension of GenericBPMNNode."""
 
     lanes: set[Lane] = element("lane", default_factory=set)
@@ -169,22 +169,22 @@ class GenericTask(GenericBPMNNode):
     """Genric Task for different BPMN tasks."""
 
 
-class Task(GenericTask, tag="task"):
+class Task(GenericTask, tag="task"):  # type: ignore[call-arg]
     """Task extension of GenericBPMNNode."""
 
 
-class UserTask(GenericTask, tag="userTask"):
+class UserTask(GenericTask, tag="userTask"):  # type: ignore[call-arg]
     """User Task extension of GenericBPMNNode."""
 
 
-class ServiceTask(GenericTask, tag="serviceTask"):
+class ServiceTask(GenericTask, tag="serviceTask"):  # type: ignore[call-arg]
     """Service Task extension of GenericBPMNNode."""
 
 
 # Flow
 
 
-class Flow(BPMNNamespace, tag="sequenceFlow"):
+class Flow(BPMNNamespace, tag="sequenceFlow"):  # type: ignore[call-arg]
     """Flow extension of GenericBPMNNode."""
 
     name: str | None = attr(default=None)
@@ -198,7 +198,7 @@ class Flow(BPMNNamespace, tag="sequenceFlow"):
 class Process(GenericBPMNNode):
     """Process extension of GenericBPMNNode."""
 
-    isExecutable: bool = attr(default=False)
+    isExecutable: bool | None = attr(default=False)
 
     lane_sets: set[LaneSet] = element(default_factory=set)
 
@@ -316,12 +316,12 @@ class Process(GenericBPMNNode):
 
     def change_node_id(self, node: GenericBPMNNode, new_id: str):
         """Change node id and update connected flows."""
-        incoming_flows: list[Flow] = self._temp_node_id_to_incoming.get(node.id, [])
+        incoming_flows: set[Flow] = self._temp_node_id_to_incoming.get(node.id, set())
         incoming_flows_id_map: list[tuple[str, str, str, str | None]] = [
             (f.id, f.sourceRef, new_id, f.name) for f in incoming_flows
         ]
 
-        outgoing_flows: list[Flow] = self._temp_node_id_to_outgoing.get(node.id, [])
+        outgoing_flows: set[Flow] = self._temp_node_id_to_outgoing.get(node.id, set())
         outgoing_flows_id_map: list[tuple[str, str, str, str | None]] = [
             (f.id, new_id, f.targetRef, f.name) for f in outgoing_flows
         ]
@@ -464,7 +464,7 @@ class Process(GenericBPMNNode):
         return source_id, target_id
 
 
-class BPMN(BPMNNamespace, tag="definitions"):
+class BPMN(BPMNNamespace, tag="definitions"):  # type: ignore[call-arg]
     """Extension of BPMNNamespace with attributes process and diagram."""
 
     collaboration: Collaboration | None = None

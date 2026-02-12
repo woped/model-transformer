@@ -22,7 +22,7 @@ class WorkflowBranchingType(int, Enum):
     XorJoinAndSplit = 109
 
 
-class Operator(BaseModel, tag="operator"):
+class Operator(BaseModel, tag="operator"):  # type: ignore[call-arg]
     """Operator extension of BaseModel (+id, type)."""
 
     type: WorkflowBranchingType = attr()
@@ -36,7 +36,7 @@ class TriggerType(int, Enum):
     Time = 202
 
 
-class Trigger(BaseModel, tag="trigger"):
+class Trigger(BaseModel, tag="trigger"):  # type: ignore[call-arg]
     """Trigger extension of BaseModel (+id, type)."""
 
     id: str = attr()
@@ -45,7 +45,7 @@ class Trigger(BaseModel, tag="trigger"):
     graphics: PositionGraphics = element(default=PositionGraphics())
 
 
-class TransitionResource(BaseModel, tag="transitionResource"):
+class TransitionResource(BaseModel, tag="transitionResource"):  # type: ignore[call-arg]
     """Transition Resource extension of BaseModel."""
 
     roleName: str = attr()
