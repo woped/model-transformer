@@ -3,10 +3,13 @@
 import os
 import sys
 from pathlib import Path
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file (development only)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv not available in production
 
 # Add the root of the project to sys.path
 PROJECT_ROOT = Path(__file__).parent.absolute()

@@ -1,0 +1,74 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+renovate.json
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+dist
+build
+eggs
+.eggs
+lib
+lib64
+parts
+sdist
+var
+wheels
+pip-wheel-metadata
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+.env
+
+# Testing
+tests/
+pytest.ini
+.pytest_cache
+.coverage
+htmlcov
+.tox
+.nox
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Documentation
+docs/
+README.md
+license.md
+
+# Scripts
+scripts/
+
+# Development requirements
+requirements/dev.txt
+requirements/test.txt
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Other
+*.log
+.cache

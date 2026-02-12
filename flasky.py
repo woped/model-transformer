@@ -2,7 +2,6 @@
 
 import logging
 import click
-import pytest
 
 from app import create_app
 
@@ -16,6 +15,7 @@ app = create_app()
 @click.option('--cov', is_flag=True, help="Show test coverage report.")
 def test_command(cov):
     """Run all tests in the 'tests/' directory."""
+    import pytest
     logger.info("Running test suite via CLI", extra={"coverage": bool(cov)})
     args = ["tests"]
     if cov:

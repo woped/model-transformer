@@ -1,24 +1,43 @@
-FROM python:3.12-slim
+# Use an official Python runtime as a base image
+FROM python:3.13-slim
 
-ENV APP_HOME=/app
-WORKDIR ${APP_HOME}
+ENV FLASK_APP=flasky.py \
+    FLASK_CONFIG=production \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
 
-# Set the environment variable FORCE_STD_XML
-ENV FORCE_STD_XML=true
-ENV APP_ENV=production
+RUN useradd -m -u 1000 flasky
 
-# Copying complete source code
-COPY . ${APP_HOME}/
-# Copying requirements
-COPY requirements/ ${APP_HOME}/requirements/
+WORKDIR /home/flasky
 
-# installing all production dependencies
-RUN pip install -r requirements/docker.txt
+# Requirements kopieren + installieren (als root)
+COPY --chown=flasky:flasky requirements requirements
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
+        gcc \
+        libc6-dev \
+        libffi-dev \
+        cargo \
+        rustc
+RUN python -m venv .venv
+RUN .venv/bin/pip install --upgrade pip
+RUN .venv/bin/pip install -r requirements/docker.txt
+RUN apt-get purge -y --auto-remove \
+        gcc \
+        libc6-dev \
+        libffi-dev \
+        cargo \
+        rustc
+RUN rm -rf /var/lib/apt/lists/*
 
-ENV PYTHONPATH=${APP_HOME}
+# App-Dateien kopieren (mit Ownership direkt setzen)
+COPY --chown=flasky:flasky app app
+COPY --chown=flasky:flasky flasky.py config.py boot.sh ./
 
-# Make boot script executable
-RUN chmod +x ${APP_HOME}/boot.sh
+# Fix line endings and set permissions
+RUN sed -i 's/\r$//' boot.sh && chmod +x boot.sh
+USER flasky
 
-# Run the application with gunicorn
-CMD ["./boot.sh"]
+# run-time configuration
+EXPOSE 5000
+ENTRYPOINT ["./boot.sh"]
