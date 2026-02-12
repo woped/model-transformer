@@ -231,7 +231,7 @@ def handle_triggers(net: Net, bpmn: Process, triggers: list[IntermediateCatchEve
                     id=trigger.id, name=trigger.name
                 ).mark_as_workflow_time()
             )
-        elif trigger.is_message:
+        elif trigger.is_message():
             net.add_element(
                 Transition.create(
                     id=trigger.id, name=trigger.name

@@ -17,33 +17,33 @@ from app.transform.transformer.models.pnml.workflow import (
 from app.transform.transformer.utility.utility import WOPED, BaseModel
 
 
-class Name(BaseModel, tag="name"):
+class Name(BaseModel, tag="name"):  # type: ignore[call-arg]
     """Name extension of BaseModel (+graphics, title)."""
 
     graphics: OffsetGraphics = element(default=OffsetGraphics())
     title: str | None = element(tag="text", default=None)
 
 
-class Role(BaseModel, tag="role"):
+class Role(BaseModel, tag="role"):  # type: ignore[call-arg]
     """Role as part of resources."""
 
     name: str = attr(name="Name")
 
 
-class OrganizationUnit(BaseModel, tag="organizationUnit"):
+class OrganizationUnit(BaseModel, tag="organizationUnit"):  # type: ignore[call-arg]
     """Resources hold the global role definitions."""
 
     name: str = attr(name="Name")
 
 
-class Resources(BaseModel, tag="resources"):
+class Resources(BaseModel, tag="resources"):  # type: ignore[call-arg]
     """Resources hold the global role definitions."""
 
     roles: list[Role] = element(default_factory=list)
     units: list[OrganizationUnit] = element(default_factory=list)
 
 
-class ToolspecificGlobal(BaseModel, tag="toolspecific"):
+class ToolspecificGlobal(BaseModel, tag="toolspecific"):  # type: ignore[call-arg]
     """WOPED Toolspecific extension for the global net."""
 
     tool: str = attr(default=WOPED)
@@ -62,7 +62,7 @@ class ToolspecificGlobal(BaseModel, tag="toolspecific"):
     variables: str = element(tag="variables", default=None)
 
 
-class Toolspecific(BaseModel, tag="toolspecific"):
+class Toolspecific(BaseModel, tag="toolspecific"):  # type: ignore[call-arg]
     """WOPED Toolspecific extension of BaseModel for a Netelement."""
 
     tool: str = attr(default=WOPED)
@@ -244,7 +244,7 @@ class NetElement(BaseModel):
         return self
 
 
-class Inscription(BaseModel, tag="inscription"):
+class Inscription(BaseModel, tag="inscription"):  # type: ignore[call-arg]
     """Inscription extension of BaseModel (+text, graphics)."""
 
     text: str = element(tag="text")

@@ -33,14 +33,14 @@ def clean_xml_string(xml_string: str):
     return xml_string
 
 
-class BaseModel(
+class BaseModel(  # type: ignore[call-arg]
     BaseXmlModel,
     search_mode="unordered",
     skip_empty=True,
 ):
     """BaseModel extension of BaseXmlModel."""
 
-    id: str = attr(default="")
+    id: str | None = attr(default="")
     name: str | None = attr(default=None)
 
     def __hash__(self):
@@ -48,7 +48,7 @@ class BaseModel(
         return hash((type(self),) + (self.id,))
 
 
-class BaseBPMNModel(
+class BaseBPMNModel(  # type: ignore[call-arg]
     BaseModel,
     nsmap={"": "http://www.omg.org/spec/BPMN/20100524/MODEL"},
 ):
