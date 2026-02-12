@@ -7,6 +7,7 @@ from pathlib import Path
 # Load environment variables from .env file (development only)
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     pass  # dotenv not available in production
@@ -68,8 +69,6 @@ def get_config(config_name: str | None = None):
     """Resolve a configuration class by name."""
     if not config_name:
         config_name = (
-            os.environ.get('FLASK_CONFIG')
-            or os.environ.get('APP_ENV')
-            or 'default'
+            os.environ.get("FLASK_CONFIG") or os.environ.get("APP_ENV") or "default"
         )
     return CONFIG_BY_NAME.get(config_name.lower(), Config)
