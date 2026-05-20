@@ -1,0 +1,19 @@
+repos:
+  - repo: https://github.com/jorisroovers/gitlint
+    rev: v0.19.1
+    hooks:
+      - id: gitlint
+        args: [-C, .woped-hooks/PythonHooks/.gitlint, --contrib=contrib-title-conventional-commits, --msg-filename]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.9
+    hooks:
+      - id: ruff-format
+  - repo: local
+    hooks:
+      - id: check-branch-name-post-checkout
+        name: check branch name for compliance with GitHub Flow
+        entry: "bash -lc 'python3 .woped-hooks/PythonHooks/hooks/post-checkout.py \"$@\" || python .woped-hooks/PythonHooks/hooks/post-checkout.py \"$@\" || py -3 .woped-hooks/PythonHooks/hooks/post-checkout.py \"$@\"' ignore"
+        language: system
+        stages: [post-checkout]
+        pass_filenames: false
+        always_run: true
