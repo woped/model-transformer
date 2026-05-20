@@ -103,9 +103,9 @@ def subprocess_pool():
                     subprocess_id, subprocess_name
                 ).mark_as_workflow_subprocess(),
                 Place.create(id=create_silent_node_name(subprocess_id, task_lane_2_id)),
-                Transition.create(id=task_lane_2_id, name="[UserTask] None").mark_as_workflow_resource(
-                    lane_2, orga
-                ),
+                Transition.create(
+                    id=task_lane_2_id, name="[UserTask] None"
+                ).mark_as_workflow_resource(lane_2, orga),
                 Place.create(id=ee_id),
             ],
         ],
@@ -126,7 +126,9 @@ def subprocess_pool():
             [
                 [
                     Place(id=se_id),
-                    Transition(id=sb_t_id, name=Name(title="[UserTask] None")).mark_as_workflow_resource(lane_1, orga),
+                    Transition(
+                        id=sb_t_id, name=Name(title="[UserTask] None")
+                    ).mark_as_workflow_resource(lane_1, orga),
                     Place(id=create_silent_node_name(subprocess_id, task_lane_2_id)),
                 ]
             ],
@@ -187,9 +189,9 @@ def trigger_pool_combination():
                 Place.create(id=se_id),
                 Transition.create(id=trigger_id).mark_as_workflow_time(),
                 Place.create(id=create_silent_node_name(trigger_id, user_task_id)),
-                Transition.create(id=user_task_id, name="[UserTask] None").mark_as_workflow_resource(
-                    lane_1, orga
-                ),
+                Transition.create(
+                    id=user_task_id, name="[UserTask] None"
+                ).mark_as_workflow_resource(lane_1, orga),
                 Place.create(id=ee_id),
             ],
         ],
@@ -255,15 +257,15 @@ def simple_pool():
         [
             [
                 Place.create(id=se_id),
-                Transition.create(id=task_lane_1_id, name="[UserTask] None").mark_as_workflow_resource(
-                    lane_1, orga
-                ),
+                Transition.create(
+                    id=task_lane_1_id, name="[UserTask] None"
+                ).mark_as_workflow_resource(lane_1, orga),
                 Place.create(id=create_silent_node_name(task_lane_1_id, service_task)),
                 Transition.create(id=service_task, name="[ServiceTask] service_task"),
                 Place.create(id=create_silent_node_name(service_task, task_lane_2_id)),
-                Transition.create(id=task_lane_2_id, name="[UserTask] None").mark_as_workflow_resource(
-                    lane_2, orga
-                ),
+                Transition.create(
+                    id=task_lane_2_id, name="[UserTask] None"
+                ).mark_as_workflow_resource(lane_2, orga),
                 Place.create(id=ee_id),
             ],
         ],
@@ -1072,4 +1074,3 @@ supported_cases_workflow_bpmn: list[tuple[BPMN, Pnml, str]] = [
     gateway_side_by_side_xor_and(),
     gateway_side_by_side_and_xor(),
 ]
-

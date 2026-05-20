@@ -119,9 +119,7 @@ class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):  # 
     @staticmethod
     def create_message_event(id: str, name: str | None = None):
         """Create a message event."""
-        return IntermediateCatchEvent(
-            id=id, name=name, messageEvent=MessageEvent(id="")
-        )
+        return IntermediateCatchEvent(id=id, name=name, messageEvent=MessageEvent(id=""))
 
     @staticmethod
     def create_time_event(id: str, name: str | None = None):

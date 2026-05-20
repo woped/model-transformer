@@ -59,9 +59,9 @@ def post_transform(request: flask.Request):
             response = make_response()
             response.headers["Access-Control-Allow-Origin"] = "*"
             response.headers["Access-Control-Allow-Methods"] = "POST,OPTIONS"
-            response.headers[
-                "Access-Control-Allow-Headers"
-            ] = "Content-Type,Authorization"
+            response.headers["Access-Control-Allow-Headers"] = (
+                "Content-Type,Authorization"
+            )
             return response
 
         response = handle_transformation(request)

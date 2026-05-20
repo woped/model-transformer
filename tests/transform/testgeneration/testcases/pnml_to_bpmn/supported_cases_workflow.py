@@ -1653,4 +1653,3 @@ supported_cases_workflow_pnml: list[tuple[BPMN, Pnml, str]] = [
     and_xor_split(),
     subprocess(),
 ]
-

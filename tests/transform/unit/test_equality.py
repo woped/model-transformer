@@ -27,4 +27,3 @@ class TestSubelements(unittest.TestCase):
         subnets = {}
         get_all_processes_by_id(bpmn.process, subnets)
         self.assertEqual(len(subnets), 5)
-

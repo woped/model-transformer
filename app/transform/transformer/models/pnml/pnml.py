@@ -186,9 +186,7 @@ class Net(BaseModel, tag="net"):  # type: ignore[call-arg]
             self.add_arc(source, t)
             self.add_arc(t, target)
         elif isinstance(source, Transition) and isinstance(target, Transition):
-            p = self.add_element(
-                Place(id=create_silent_node_name(source.id, target.id))
-            )
+            p = self.add_element(Place(id=create_silent_node_name(source.id, target.id)))
             self.add_arc(source, p)
             self.add_arc(p, target)
         else:

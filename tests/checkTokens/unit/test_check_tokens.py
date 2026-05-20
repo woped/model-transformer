@@ -2,6 +2,7 @@
 
 import unittest
 
+
 class TestUnitCheckTokens(unittest.TestCase):
     """A unit test class for testing the CheckTokens Endpoint of the application."""
 

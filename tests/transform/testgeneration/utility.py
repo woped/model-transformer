@@ -1,4 +1,5 @@
 """Directory handling and id generator for testgeneration."""
+
 import shutil
 from pathlib import Path
 
@@ -32,6 +33,7 @@ def read_bpmn_file(case_name: str):
 
 class UniqueIDGenerator:
     """Generates unique IDs."""
+
     running_id = 0
 
     @staticmethod

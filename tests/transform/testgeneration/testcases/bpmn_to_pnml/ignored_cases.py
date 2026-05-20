@@ -7,7 +7,7 @@ from tests.transform.testgeneration.pnml.utility import create_petri_net
 from tests.transform.testgeneration.utility import (
     UniqueIDGenerator,
     create_file_path,
-    read_bpmn_file
+    read_bpmn_file,
 )
 
 from app.transform.transformer.models.bpmn.bpmn import EndEvent, StartEvent, Task
@@ -56,4 +56,3 @@ def generate():
 
 
 all_cases = generate()
-
