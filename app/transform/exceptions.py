@@ -119,14 +119,6 @@ class WrongSubprocessDegree(KnownException):
         super().__init__(7, "Subprocess must have exactly one in and outgoing flow!")
 
 
-class ORGatewayDetectionIssue(KnownException):
-    """Exception raised for OR-Gateway detection issues."""
-
-    def __init__(self) -> None:
-        """Initialize an OR-Gateway detection issue exception."""
-        super().__init__(8, "Could not find matching splits and joins for OR-Gateways")
-
-
 class SubprocessWrongInnerSourceSinkDegree(KnownException):
     """Exception raised for incorrect inner source/sink degrees in subprocesses."""
 

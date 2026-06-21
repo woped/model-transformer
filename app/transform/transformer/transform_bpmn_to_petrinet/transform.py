@@ -28,7 +28,6 @@ from app.transform.transformer.transform_bpmn_to_petrinet.participants import (
 from app.transform.transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
     adjacent_inserter,
     all_gateways,
-    or_gateways,
 )
 from app.transform.transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
     handle_gateways,
@@ -259,7 +258,6 @@ def bpmn_to_workflow_net(bpmn: BPMN):
     apply_preprocessing(
         bpmn.process,
         [
-            or_gateways.replace_inclusive_gateways,
             all_gateways.preprocess_gateways,
             adjacent_inserter.insert_temp_between_adjacent_mapped_transition,
         ],
