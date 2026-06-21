@@ -232,7 +232,9 @@ def transform_bpmn_to_petrinet(
     logger.debug("Starting post-processing")
     merge_single_triggers(net)
     logger.debug(
-        f"Transformation completed - Final net has {len(net.places)} places and {len(net.transitions)} transitions"
+        "Transformation completed - Final net has %s places and %s transitions",
+        len(net.places),
+        len(net.transitions),
     )
 
     return pnml
