@@ -1,6 +1,8 @@
 # PNML-BPMN-TRANSFORMER
 
-A simple FaaS-API application designed to convert Business Processes in BPMN notation to PNML and vice versa. 
+A Flask API service that converts business processes between BPMN notation and
+PNML (Petri Net Markup Language), in both directions. It is called directly by
+the WOPED client.
 
 Please refer to this [repo's wiki](https://github.com/Niyada/bpmn-pnml-transformer-poc/wiki) for more information.
 To use the API, refer to its [documentation](https://woped.github.io/model-transformer/).
@@ -19,8 +21,8 @@ pip install -r requirements/dev.txt
 export FORCE_STD_XML=true
 export FLASK_CONFIG=development
 
-# Run development server
-flask run
+# Run development server (FLASK_APP defaults to flasky.py)
+flask --app flasky run
 ```
 
 ### Testing
@@ -40,17 +42,17 @@ E2E tests require a running server instance and are skipped by default. To run E
    ```bash
    export FORCE_STD_XML=true
    export FLASK_CONFIG=development
-   flask run
+   flask --app flasky run
    ```
 
 2. In a separate terminal, set E2E environment variable and run tests:
    ```bash
    export E2E_URL=http://localhost:5000    # Base URL for health/checkTokens
    # For transform endpoint: http://localhost:5000/transform
-   
+
    # Run only E2E tests
    pytest tests/ -m e2e
-   
+
    # Run all tests including E2E
    pytest tests/
    ```
@@ -62,8 +64,10 @@ pytest tests/ -m "not e2e"
 
 ### Production
 
+The production entry point is `flasky:app`, launched through `boot.sh`:
+
 ```bash
-gunicorn wsgi:app
+gunicorn -b :5000 flasky:app
 ```
 
 ---
@@ -80,20 +84,23 @@ After cloning this repository, it's essential to [set up git hooks](https://gith
 
 ```
 model-transformer/
-├── config.py                    # Root-level configuration
-├── wsgi.py                      # WSGI entry point
+├── config.py                    # Root-level configuration classes
+├── flasky.py                    # WSGI entry point (app = create_app()) + CLI test command
+├── version.py                   # Version and metadata, used by CI for container tagging
+├── boot.sh                      # Container entry point (activates venv, runs gunicorn)
+├── Dockerfile                   # Container image definition
 ├── app/
 │   ├── __init__.py             # Application factory (create_app)
 │   ├── logging_config.py       # JSON logging configuration
 │   ├── api/
 │   │   ├── __init__.py         # API blueprint definition
-│   │   └── routes.py           # Consolidated API routes
+│   │   └── routes.py           # Consolidated API routes (/health, /transform, /metrics)
 │   ├── model_transformer/
 │   │   ├── __init__.py
 │   │   └── metrics.py          # Prometheus metrics
 │   ├── health/                 # Health check logic
 │   ├── transform/              # Model transformation logic
-│   ├── checkTokens/            # Token validation logic
+│   ├── checkTokens/            # Token validation logic (Cloud Function helper)
 │   └── ...
 ├── tests/
 │   ├── checkTokens/
@@ -137,27 +144,38 @@ The factory handles:
 
 #### Configuration (`config.py`)
 
-Centralized configuration management with environment-based loading:
+Centralized configuration management with environment-based loading. The base
+`Config` and the per-environment subclasses are resolved by name through
+`CONFIG_BY_NAME` / `get_config()`:
 
 ```python
 class Config:
-    """Base configuration"""
+    """Base configuration."""
     ENV_NAME = "default"
     DEBUG = False
     TESTING = False
-    LOG_LEVEL = "INFO"
+    JSON_SORT_KEYS = False
+    PROPAGATE_EXCEPTIONS = False
+    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+
+    @staticmethod
+    def init_app(app):
+        return None
 
 class DevelopmentConfig(Config):
+    ENV_NAME = "development"
     DEBUG = True
 
 class TestingConfig(Config):
+    ENV_NAME = "testing"
     TESTING = True
+    LOG_LEVEL = "DEBUG"
 
 class ProductionConfig(Config):
-    pass
+    ENV_NAME = "production"
 
 def get_config(config_name=None):
-    """Get config class by name, auto-detects from environment variables"""
+    """Resolve a configuration class by name (falls back to FLASK_CONFIG / APP_ENV)."""
 ```
 
 **Environment Variables:**
@@ -180,19 +198,21 @@ bp = Blueprint('api', __name__)
 @bp.route('/health', methods=['GET'])
 def health():
     """Health check endpoint"""
-    
+
 @bp.route('/transform', methods=['POST'])
 def transform():
     """Model transformation endpoint"""
-    
+
 @bp.route('/metrics', methods=['GET'])
 def metrics():
     """Prometheus metrics endpoint"""
 ```
 
-#### Entry Points
+#### Entry Point
 
-**`wsgi.py`** - Main entry point for WSGI servers and CLI:
+**`flasky.py`** — the WSGI entry point. It builds the app via the factory and
+registers the CLI test command:
+
 ```python
 app = create_app()
 
@@ -202,7 +222,7 @@ def test_command(cov):
     """Run all tests in the 'tests/' directory."""
 ```
 
-**`app/__init__.py`** - Contains `create_app()` factory function
+`app/__init__.py` contains the `create_app()` factory itself.
 
 ---
 
@@ -214,24 +234,32 @@ Health check endpoint for monitoring application status.
 **Response:**
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2026-02-07T12:00:00Z"
+  "healthy": true
 }
 ```
+
+An optional `?message=...` query parameter is echoed back as a `message` field.
+Any other query parameter returns `400`.
 
 ### POST `/transform`
-Transform models between BPMN and PNML formats.
+Transform a model between BPMN and PNML. The direction is selected with the
+`direction` **query parameter**, and the model XML is sent as **form-data**.
 
-**Request Body:**
-```json
-{
-  "data": "...",
-  "format": "bpmn|pnml"
-}
+**Request:**
+
+| Direction (`?direction=`) | Form field | Response body |
+|---------------------------|------------|---------------|
+| `bpmntopnml`              | `bpmn`     | `{ "pnml": "<...>" }` |
+| `pnmltobpmn`              | `pnml`     | `{ "bpmn": "<...>" }` |
+
+```bash
+curl -X POST "http://localhost:5000/transform?direction=bpmntopnml" \
+  --form 'bpmn=<bpmn>...</bpmn>'
 ```
 
-**Response:**
-The transformed model in the requested format.
+A missing/unknown `direction` or a missing form field returns `400` with an
+error message. When the service runs on Cloud Run (`K_SERVICE` set), requests
+are first checked against the token-rate-limiting Cloud Function.
 
 ### GET `/metrics`
 Prometheus metrics endpoint for monitoring.
@@ -252,7 +280,7 @@ export FLASK_CONFIG=development
 export FORCE_STD_XML=true
 export LOG_LEVEL=DEBUG
 
-flask run --reload
+flask --app flasky run --reload
 ```
 
 ### Testing Configuration
@@ -275,29 +303,27 @@ export FLASK_CONFIG=production
 export FORCE_STD_XML=true
 export LOG_LEVEL=INFO
 
-gunicorn wsgi:app \
+gunicorn -b :5000 \
   --workers 4 \
   --threads 2 \
-  --bind 0.0.0.0:8080
+  flasky:app
 ```
 
-### Docker Configuration
+### Docker
 
-```dockerfile
-FROM python:3.13
+The image is built from the repository `Dockerfile` (`python:3.13-slim`, installs
+`requirements/docker.txt` into a virtualenv, runs as a non-root `flasky` user) and
+starts through `boot.sh`, which binds gunicorn to port `5000`:
 
-WORKDIR /app
+```bash
+# Build
+docker build -t model-transformer .
 
-COPY requirements/docker.txt .
-RUN pip install -r docker.txt
-
-COPY . .
-
-ENV FORCE_STD_XML=true
-ENV FLASK_CONFIG=production
-
-CMD ["gunicorn", "wsgi:app", "--bind", "0.0.0.0:8080"]
+# Run (container listens on 5000)
+docker run -p 5000:5000 -e FORCE_STD_XML=true model-transformer
 ```
+
+`FLASK_APP=flasky.py` and `FLASK_CONFIG=production` are set inside the image.
 
 ---
 
@@ -337,9 +363,9 @@ pytest tests/transform/ -v
 # Run with coverage
 pytest tests/ --cov=app --cov-report=term-missing
 
-# Run via CLI command
-python wsgi.py test              # Run all tests
-python wsgi.py test --cov        # Run with coverage
+# Run via the Flask CLI command
+flask --app flasky test          # Run all tests
+flask --app flasky test --cov    # Run with coverage
 ```
 
 ### Test Coverage
@@ -350,66 +376,6 @@ The project uses pytest with coverage reporting:
 pytest tests/ --cov=app --cov-report=html
 # Open htmlcov/index.html in browser
 ```
-
----
-
-## Recent Refactoring (February 2026)
-
-### What Changed
-
-The Flask application has been refactored to follow the well-structured pattern used in reference projects (`t2p-2.0` and `t2p-llm-api-connector`):
-
-1. **Application Factory Pattern**
-   - Single `create_app()` function in `app/__init__.py`
-   - Centralized Flask configuration and initialization
-   - Enables easy testing with different configurations
-
-2. **Root-Level Configuration**
-   - `config.py` contains all configuration classes
-   - Environment-based configuration resolution
-   - Supports multiple deployment environments
-
-3. **Unified API Blueprint**
-   - All routes in `app/api/` package
-   - Single `routes.py` file with all endpoints
-   - Cleaner, more maintainable structure
-
-4. **Test Consolidation**
-   - All tests moved to `tests/` directory at project root
-   - Tests organized by module (checkTokens, health, transform)
-   - Proper Python package structure with `__init__.py` files
-
-5. **Entry Point Simplification**
-   - `wsgi.py` is main entry point (removed redundant `app/app.py`)
-   - Cleaner WSGI configuration
-   - CLI test commands available
-
-### Before vs After
-
-| Aspect | Before | After |
-|--------|--------|-------|
-| Configuration | Scattered across modules | Centralized in `config.py` |
-| Factory Logic | In `app/model_transformer/__init__.py` | In `app/__init__.py` |
-| Routes | Multiple files in `app/model_transformer/routes/` | Single blueprint in `app/api/routes.py` |
-| Tests | Distributed in each module | Consolidated in `tests/` directory |
-| Entry Point | `wsgi.py` → `app/app.py` → factory | Direct `wsgi.py` → factory |
-
-### Verification
-
-The refactored structure has been verified:
-- ✅ Application loads successfully
-- ✅ All 3 API routes registered
-- ✅ 22 unit and integration tests pass
-- ✅ Prometheus metrics working
-- ✅ Backward compatibility maintained
-
-### Benefits
-
-- **Consistency**: Matches proven patterns from reference projects
-- **Maintainability**: Centralized configuration and clear module organization
-- **Testability**: Factory pattern enables comprehensive testing
-- **Scalability**: Blueprint structure easy to extend
-- **Code Quality**: Better separation of concerns
 
 ---
 
@@ -468,13 +434,14 @@ curl http://localhost:5000/metrics
 
 ### Core Dependencies
 
-- **Flask 3.0+** - Web framework
+- **Flask 3.0.3** - Web framework
 - **flask-cors** - CORS support
 - **prometheus-client** - Metrics collection
 - **python-json-logger** - Structured JSON logging
-- **pydantic** - Data validation
-- **lxml** - XML processing
+- **pydantic** / **pydantic_xml** - Data validation and XML (de)serialization
+- **defusedxml** - Safe XML parsing
 - **requests** - HTTP client
+- **firebase_admin** - Used by the token-check integration
 
 ### Development Dependencies
 
@@ -572,7 +539,3 @@ Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md) for guidelines on:
 ## License
 
 See [LICENSE](license.md) for details.
-
----
-
-*Last Updated: February 7, 2026*
