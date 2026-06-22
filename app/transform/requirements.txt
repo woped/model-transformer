@@ -1,7 +1,0 @@
-# test index
--i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple
-firebase_admin==6.5.0
-lxml==5.2.2
-pydantic==2.7.4
-pydantic_xml==2.11.0
-defusedxml==0.7.1
