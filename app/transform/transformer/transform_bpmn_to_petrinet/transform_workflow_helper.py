@@ -5,7 +5,6 @@ from collections.abc import Callable
 from typing import cast
 
 from app.transform.exceptions import (
-    InternalTransformationException,
     UnknownIntermediateCatchEvent,
     WrongSubprocessDegree,
 )
@@ -29,7 +28,6 @@ from app.transform.transformer.models.pnml.pnml import (
 from app.transform.transformer.models.pnml.workflow import WorkflowBranchingType
 from app.transform.transformer.utility.bpmn import find_end_events, find_start_events
 from app.transform.transformer.utility.utility import (
-    create_arc_name,
     create_silent_node_name,
 )
 
@@ -46,22 +44,8 @@ def create_workflow_operator_helper_transition(
 
 
 def add_arc(net: Net, source: NetElement, target: NetElement):
-    """Add arc between source and target net elements for a net."""
-    if type(source) is not type(target):
-        net.add_arc(source, target, create_arc_name(source.id, target.id))
-    elif isinstance(source, Place):
-        t = net.add_element(
-            Transition.create(create_silent_node_name(source.id, target.id))
-        )
-        net.add_arc(source, t, create_arc_name(source.id, t.id))
-        net.add_arc(t, target, create_arc_name(t.id, target.id))
-    elif isinstance(source, Transition):
-        # check if actually name was used to create place or original id was used for id
-        p = net.add_element(Place.create(create_silent_node_name(source.id, target.id)))
-        net.add_arc(source, p, create_arc_name(source.id, p.id))
-        net.add_arc(p, target, create_arc_name(p.id, target.id))
-    else:
-        raise InternalTransformationException("invalid petrinet node")
+    """Add an arc, inserting a silent node when source and target share a type."""
+    net.add_arc_with_handle_same_type(source, target)
 
 
 def add_wf_xor_split(
