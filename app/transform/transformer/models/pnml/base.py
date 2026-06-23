@@ -3,7 +3,6 @@
 from pydantic_xml import attr, element
 
 from app.transform.transformer.models.pnml.graphics import (
-    Coordinates,
     OffsetGraphics,
     PositionGraphics,
 )
@@ -71,7 +70,6 @@ class Toolspecific(BaseModel, tag="toolspecific"):  # type: ignore[call-arg]
     # normal transition
     time: str | None = element(tag="time", default="0")
     timeUnit: str | None = element(tag="timeUnit", default="1")
-    orientation: str | None = element(tag="orientation", default=None)
 
     # wf-operator
     operator: Operator | None = None
@@ -81,11 +79,6 @@ class Toolspecific(BaseModel, tag="toolspecific"):  # type: ignore[call-arg]
 
     # transition resource
     transitionResource: TransitionResource | None = None
-
-    # arc
-    probability: str | None = element(tag="probability", default=None)
-    displayProbabilityOn: str | None = element(tag="displayProbabilityOn", default=None)
-    displayProbabilityPosition: Coordinates | None = None
 
     # subprocess
     subprocess: bool | None = element(tag="subprocess", default=None)
@@ -138,10 +131,6 @@ class NetElement(BaseModel):
         if not self.name:
             return None
         return self.name.title
-
-    def set_name(self, new_name: str):
-        """Sets the name from a string."""
-        self.name = Name(title=new_name)
 
     def set_copy_of_exisiting_toolspecific(self, tool: Toolspecific | None):
         """Set a copy of a existing Toolspecific instance."""

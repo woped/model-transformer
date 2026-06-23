@@ -308,10 +308,6 @@ class Process(GenericBPMNNode):
         """Return a node by id."""
         return self._temp_nodes[id]
 
-    def is_node_existing(self, id: str):
-        """Returns whether node with a id is existing in process."""
-        return id in self._temp_nodes
-
     def change_node_id(self, node: GenericBPMNNode, new_id: str):
         """Change node id and update connected flows."""
         incoming_flows: set[Flow] = self._temp_node_id_to_incoming.get(node.id, set())
@@ -394,11 +390,6 @@ class Process(GenericBPMNNode):
 
         self._remove_actual_flow(flow)
 
-    def add_nodes(self, *args: GenericBPMNNode):
-        """Add multiple nodes to the BPMN."""
-        for node in args:
-            self.add_node(node)
-
     def add_node(self, new_node: GenericBPMNNode):
         """Add single node to the BPMN."""
         storage_set = self._type_map[type(new_node)]
@@ -435,18 +426,6 @@ class Process(GenericBPMNNode):
             outgoing = self._temp_node_id_to_outgoing.pop(to_remove_node.id)
             for arc in outgoing:
                 arc.sourceRef = ""
-
-    def get_flow_target_by_id(self, flow_id: str):
-        """Return target nodes from flow id."""
-        return self._temp_nodes[self._temp_flows[flow_id].targetRef]
-
-    def get_flow_source_by_id(self, flow_id: str):
-        """Return source nodes from flow id."""
-        return self._temp_nodes[self._temp_flows[flow_id].sourceRef]
-
-    def get_flow(self, id: str):
-        """Return flow by id."""
-        return self._temp_flows[id]
 
     def remove_node_with_connecting_flows(self, node: GenericBPMNNode):
         """Remove node and its connected flows."""
