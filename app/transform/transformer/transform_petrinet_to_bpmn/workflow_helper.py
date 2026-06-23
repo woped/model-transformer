@@ -31,7 +31,10 @@ from app.transform.transformer.models.pnml.transform_helper import (
     XORHelperPNML,
 )
 from app.transform.transformer.models.pnml.workflow import WorkflowBranchingType
-from app.transform.transformer.utility.pnml import generate_subprocess_inner_id
+from app.transform.transformer.utility.pnml import (
+    find_workflow_resources,
+    generate_subprocess_inner_id,
+)
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
@@ -217,11 +220,7 @@ def find_role_type_of_subprocess(net: Net, current_role: str | None = None):
 
     Should there be more than one role a exception will be thrown.
     """
-    to_handle_temp_resources: list[NetElement] = [
-        elem
-        for elem in net._flatten_node_typ_map()
-        if isinstance(elem, NetElement) and elem.is_workflow_resource()
-    ]
+    to_handle_temp_resources = find_workflow_resources(net)
     for resource in to_handle_temp_resources:
         if not resource.toolspecific or not resource.toolspecific.transitionResource:
             raise InternalTransformationException("Not possible.")
@@ -241,11 +240,7 @@ def annotate_resources(net: Net, bpmn: BPMN):
     logger.debug("Annotating resources to BPMN lanes and participants")
     current_organization: str | None = None
     role_map: dict[str, list[str]] = {}
-    to_handle_temp_resources: list[NetElement] = [
-        elem
-        for elem in net._flatten_node_typ_map()
-        if isinstance(elem, NetElement) and elem.is_workflow_resource()
-    ]
+    to_handle_temp_resources = find_workflow_resources(net)
     for resource in to_handle_temp_resources:
         if not resource.toolspecific or not resource.toolspecific.transitionResource:
             raise InternalTransformationException("Not possible.")
