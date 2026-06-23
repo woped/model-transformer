@@ -40,11 +40,13 @@ class TestE2EPostTransform(unittest.TestCase):
 
     def test_pnml_to_bpmn(self):
         """Tests transform endpoint for pnmltobpmn direction."""
-        PAYLOAD_PNML_FILE_PATH = "tests/assets/diagrams/pnml/e2e_payload.xml"
+        PAYLOAD_PNML_FILE_PATH = "tests/transform/assets/diagrams/pnml/e2e_payload.xml"
         with open(PAYLOAD_PNML_FILE_PATH, encoding="utf-8") as file:
             payload_content = file.read()
 
-        EXPECTED_BPMN_FILE_PATH = "tests/assets/diagrams/bpmn/e2e_expected_response.xml"
+        EXPECTED_BPMN_FILE_PATH = (
+            "tests/transform/assets/diagrams/bpmn/e2e_expected_response.xml"
+        )
         with open(EXPECTED_BPMN_FILE_PATH, encoding="utf-8") as file:
             expected_response = file.read()
 
@@ -65,11 +67,13 @@ class TestE2EPostTransform(unittest.TestCase):
 
     def test_bpmn_to_pnml(self):
         """Tests transform endpoint for bpmntopnml direction."""
-        PAYLOAD_BPMN_FILE_PATH = "tests/assets/diagrams/bpmn/e2e_payload.xml"
+        PAYLOAD_BPMN_FILE_PATH = "tests/transform/assets/diagrams/bpmn/e2e_payload.xml"
         with open(PAYLOAD_BPMN_FILE_PATH, encoding="utf-8") as file:
             payload_content = file.read()
 
-        EXPECTED_PNML_FILE_PATH = "tests/assets/diagrams/pnml/e2e_expected_response.xml"
+        EXPECTED_PNML_FILE_PATH = (
+            "tests/transform/assets/diagrams/pnml/e2e_expected_response.xml"
+        )
         with open(EXPECTED_PNML_FILE_PATH, encoding="utf-8") as file:
             expected_response = file.read()
 
@@ -90,7 +94,7 @@ class TestE2EPostTransform(unittest.TestCase):
 
     def test_invalid_direction(self):
         """Tests transform endpoint for an invalid direction."""
-        PAYLOAD_PNML_FILE_PATH = "tests/assets/diagrams/pnml/e2e_payload.xml"
+        PAYLOAD_PNML_FILE_PATH = "tests/transform/assets/diagrams/pnml/e2e_payload.xml"
         with open(PAYLOAD_PNML_FILE_PATH, encoding="utf-8") as file:
             payload_content = file.read()
 
