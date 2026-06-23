@@ -42,7 +42,7 @@ class Trigger(BaseModel, tag="trigger"):  # type: ignore[call-arg]
     id: str = attr()
     type: TriggerType = attr()
 
-    graphics: PositionGraphics = element(default=PositionGraphics())
+    graphics: PositionGraphics | None = element(default=None)
 
 
 class TransitionResource(BaseModel, tag="transitionResource"):  # type: ignore[call-arg]
@@ -51,4 +51,4 @@ class TransitionResource(BaseModel, tag="transitionResource"):  # type: ignore[c
     roleName: str = attr()
     organizationalUnitName: str = attr()
 
-    graphics: PositionGraphics = element(default=PositionGraphics())
+    graphics: PositionGraphics | None = element(default=None)

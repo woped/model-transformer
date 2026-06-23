@@ -25,7 +25,7 @@ _OPERATOR_POSITION_WEST = "3"
 class Name(BaseModel, tag="name"):  # type: ignore[call-arg]
     """Name extension of BaseModel (+graphics, title)."""
 
-    graphics: OffsetGraphics = element(default=OffsetGraphics())
+    graphics: OffsetGraphics | None = element(default=None)
     title: str | None = element(tag="text", default=None)
 
 
@@ -55,7 +55,7 @@ class ToolspecificGlobal(BaseModel, tag="toolspecific"):  # type: ignore[call-ar
     version: str = attr(default="1.0")
 
     resources: Resources | None = None
-    bounds: PositionGraphics = element(tag="bounds", default=PositionGraphics())
+    bounds: PositionGraphics | None = element(tag="bounds", default=None)
     scale: str = element(tag="scale", default="100")
     treeWidthRight: str = element(tag="treeWidthRight", default="748")
     overviewPanelVisible: str = element(tag="overviewPanelVisible", default="true")
