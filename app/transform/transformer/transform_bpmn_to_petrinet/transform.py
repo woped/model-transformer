@@ -35,7 +35,6 @@ from app.transform.transformer.transform_bpmn_to_petrinet.transform_workflow_hel
     handle_triggers,
 )
 from app.transform.transformer.utility.pnml import find_triggers
-from app.transform.transformer.utility.utility import create_silent_node_name
 
 logger = logging.getLogger(__name__)
 
@@ -211,18 +210,7 @@ def transform_bpmn_to_petrinet(
         target = net.get_node_or_none(flow.targetRef)
         if source is None or target is None:
             continue
-        if isinstance(source, Place) and isinstance(target, Place):
-            t = net.add_element(
-                Transition(id=create_silent_node_name(source.id, target.id))
-            )
-            net.add_arc(source, t)
-            net.add_arc(t, target)
-        elif isinstance(source, Transition) and isinstance(target, Transition):
-            p = net.add_element(Place(id=create_silent_node_name(source.id, target.id)))
-            net.add_arc(source, p)
-            net.add_arc(p, target)
-        else:
-            net.add_arc(source, target)
+        net.add_arc_with_handle_same_type(source, target)
 
     # Post processing
     logger.debug("Starting post-processing")
