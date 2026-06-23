@@ -46,13 +46,13 @@ def gen_task(task_cls, case):
 
     # Determine the name prefix based on task type
     if task_cls == UserTask:
-        task_name = f"[UserTask] {task_id}"
+        task_name = task_id
         # UserTasks get workflow resource markings even without pools
         transition = Transition.create(task_id, task_name).mark_as_workflow_resource(
             "", ""
         )
     elif task_cls == ServiceTask:
-        task_name = f"[ServiceTask] {task_id}"
+        task_name = task_id
         transition = Transition.create(task_id, task_name)
     else:
         task_name = task_id

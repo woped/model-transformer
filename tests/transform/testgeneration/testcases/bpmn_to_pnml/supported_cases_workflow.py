@@ -104,7 +104,7 @@ def subprocess_pool():
                 ).mark_as_workflow_subprocess(),
                 Place.create(id=create_silent_node_name(subprocess_id, task_lane_2_id)),
                 Transition.create(
-                    id=task_lane_2_id, name="[UserTask] None"
+                    id=task_lane_2_id, name=None
                 ).mark_as_workflow_resource(lane_2, orga),
                 Place.create(id=ee_id),
             ],
@@ -127,7 +127,7 @@ def subprocess_pool():
                 [
                     Place(id=se_id),
                     Transition(
-                        id=sb_t_id, name=Name(title="[UserTask] None")
+                        id=sb_t_id, name=None
                     ).mark_as_workflow_resource(lane_1, orga),
                     Place(id=create_silent_node_name(subprocess_id, task_lane_2_id)),
                 ]
@@ -190,7 +190,7 @@ def trigger_pool_combination():
                 Transition.create(id=trigger_id).mark_as_workflow_time(),
                 Place.create(id=create_silent_node_name(trigger_id, user_task_id)),
                 Transition.create(
-                    id=user_task_id, name="[UserTask] None"
+                    id=user_task_id, name=None
                 ).mark_as_workflow_resource(lane_1, orga),
                 Place.create(id=ee_id),
             ],
@@ -258,13 +258,13 @@ def simple_pool():
             [
                 Place.create(id=se_id),
                 Transition.create(
-                    id=task_lane_1_id, name="[UserTask] None"
+                    id=task_lane_1_id, name=None
                 ).mark_as_workflow_resource(lane_1, orga),
                 Place.create(id=create_silent_node_name(task_lane_1_id, service_task)),
-                Transition.create(id=service_task, name="[ServiceTask] service_task"),
+                Transition.create(id=service_task, name="service_task"),
                 Place.create(id=create_silent_node_name(service_task, task_lane_2_id)),
                 Transition.create(
-                    id=task_lane_2_id, name="[UserTask] None"
+                    id=task_lane_2_id, name=None
                 ).mark_as_workflow_resource(lane_2, orga),
                 Place.create(id=ee_id),
             ],

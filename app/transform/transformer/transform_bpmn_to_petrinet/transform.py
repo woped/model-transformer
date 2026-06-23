@@ -14,7 +14,6 @@ from app.transform.transformer.models.bpmn.bpmn import (
     IntermediateCatchEvent,
     OrGateway,
     Process,
-    ServiceTask,
     StartEvent,
     UserTask,
     XorGateway,
@@ -163,12 +162,9 @@ def transform_bpmn_to_petrinet(
     logger.debug("Processing regular nodes")
     for node in nodes:
         if isinstance(node, GenericTask | AndGateway | IntermediateCatchEvent):
+            # The task type (UserTask/ServiceTask) is carried by the WoPeD
+            # toolspecific resource marking, not by polluting the visible name.
             name = node.name
-            if isinstance(node, UserTask):
-                name = f"[UserTask] {node.name}"
-            elif isinstance(node, ServiceTask):
-                name = f"[ServiceTask] {node.name}"
-
             net.add_element(
                 Transition.create(
                     id=node.id,
