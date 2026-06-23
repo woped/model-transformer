@@ -125,10 +125,6 @@ class NetElement(BaseModel):
         self.toolspecific = tool.model_copy()
         return self
 
-    def is_workflow_element(self):
-        """Return whether instance is workflow element."""
-        return self.toolspecific and self.toolspecific.is_woped()
-
     def is_workflow_operator(self):
         """Return whether instance is workflow operator."""
         if not self.toolspecific:
