@@ -16,6 +16,11 @@ from app.transform.transformer.models.pnml.workflow import (
 )
 from app.transform.transformer.utility.utility import WOPED, BaseModel
 
+# WOPED's OperatorPosition enum, used for an operator's <orientation>:
+# NORTH=0, EAST=1, SOUTH=2, WEST=3 (see Toolspecific.OperatorPosition).
+_OPERATOR_POSITION_EAST = "1"
+_OPERATOR_POSITION_WEST = "3"
+
 
 class Name(BaseModel, tag="name"):  # type: ignore[call-arg]
     """Name extension of BaseModel (+graphics, title)."""
@@ -205,6 +210,16 @@ class NetElement(BaseModel):
         if not self.toolspecific:
             self.toolspecific = Toolspecific()
         self.toolspecific.operator = Operator(id=id, type=type)
+        # WOPED reads <orientation> as the operator's position and lets it
+        # override the per-type default, so the side the arc-fan is drawn on must
+        # match the operator: a split fans EAST, a join (and the combined
+        # operators) fans WEST. The shared default of EAST is right for splits but
+        # mirrors every join -- making a join render exactly like a split.
+        self.toolspecific.orientation = (
+            _OPERATOR_POSITION_EAST
+            if type in (WorkflowBranchingType.AndSplit, WorkflowBranchingType.XorSplit)
+            else _OPERATOR_POSITION_WEST
+        )
         return self
 
     def mark_as_workflow_subprocess(self):
