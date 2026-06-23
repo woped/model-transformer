@@ -49,16 +49,6 @@ class ToolspecificGlobal(BaseModel, tag="toolspecific"):  # type: ignore[call-ar
     version: str = attr(default="1.0")
 
     resources: Resources | None = None
-    bounds: PositionGraphics | None = element(tag="bounds", default=None)
-    scale: str = element(tag="scale", default="100")
-    treeWidthRight: str = element(tag="treeWidthRight", default="748")
-    overviewPanelVisible: str = element(tag="overviewPanelVisible", default="true")
-    treeHeightOverview: str = element(tag="treeHeightOverview", default="100")
-    treePanelVisible: str = element(tag="treePanelVisible", default="true")
-    verticalLayout: str = element(tag="verticalLayout", default="false")
-    simulations: str = element(tag="simulations", default=None)
-    partnerLinks: str = element(tag="partnerLinks", default=None)
-    variables: str = element(tag="variables", default=None)
 
 
 class Toolspecific(BaseModel, tag="toolspecific"):  # type: ignore[call-arg]
@@ -66,10 +56,6 @@ class Toolspecific(BaseModel, tag="toolspecific"):  # type: ignore[call-arg]
 
     tool: str = attr(default=WOPED)
     version: str = attr(default="1.0")
-
-    # normal transition
-    time: str | None = element(tag="time", default="0")
-    timeUnit: str | None = element(tag="timeUnit", default="1")
 
     # wf-operator
     operator: Operator | None = None
