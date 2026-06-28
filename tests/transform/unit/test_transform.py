@@ -32,8 +32,9 @@ from tests.transform.testgeneration.utility import clear
 from app.transform.exceptions import NotSupportedBPMNElement
 from app.transform.transformer.equality.bpmn import compare_bpmn
 from app.transform.transformer.equality.petrinet import compare_pnml
-from app.transform.transformer.models.bpmn.bpmn import BPMN
+from app.transform.transformer.models.bpmn.bpmn import BPMN, UserTask, XorGateway
 from app.transform.transformer.models.pnml.pnml import Pnml
+from app.transform.transformer.models.pnml.workflow import WorkflowBranchingType
 from app.transform.transformer.transform_bpmn_to_petrinet.transform import (
     bpmn_to_wf_net_from_xml,
     bpmn_to_workflow_net,
@@ -41,6 +42,12 @@ from app.transform.transformer.transform_bpmn_to_petrinet.transform import (
 from app.transform.transformer.transform_petrinet_to_bpmn.transform import pnml_to_bpmn
 
 LOG_PATH = "test_log"
+PROCESS_EXAMPLES_BPMN_DIR = Path("tests/process_examples/bpmn")
+
+
+def get_process_example_bpmn_files() -> list[Path]:
+    """Return all BPMN process example files recursively."""
+    return sorted(PROCESS_EXAMPLES_BPMN_DIR.rglob("*.bpmn"))
 
 
 def save_failed_bpmn_to_pnml_transformation(
@@ -210,6 +217,104 @@ class TestBPMNToWorkflowNet(unittest.TestCase):
                 )
             with self.subTest(case):
                 self.assertTrue(equal, f"{case} should be equal\n{error}")
+
+    def test_process_examples_discovered_by_extension(self):
+        """Detect BPMN process examples recursively by .bpmn extension."""
+        bpmn_files = get_process_example_bpmn_files()
+        self.assertGreater(
+            len(bpmn_files),
+            0,
+            f"No BPMN process examples found under {PROCESS_EXAMPLES_BPMN_DIR}",
+        )
+
+    def test_process_examples_gateway_and_transition_types(self):
+        """Parse each discovered BPMN and verify core transition-like node detection."""
+        bpmn_files = get_process_example_bpmn_files()
+        self.assertGreater(len(bpmn_files), 0)
+
+        for bpmn_file in bpmn_files:
+            with self.subTest(file=str(bpmn_file)):
+                bpmn = BPMN.from_file(str(bpmn_file))
+                nodes = bpmn.process._flatten_node_typ_map()
+
+                xor_gateways = [n for n in nodes if isinstance(n, XorGateway)]
+                user_tasks = [n for n in nodes if isinstance(n, UserTask)]
+
+                self.assertGreaterEqual(len(xor_gateways), 0)
+                self.assertGreaterEqual(len(user_tasks), 0)
+
+    def test_process_examples_translation_behavior(self):
+        """Validate translation behavior for discovered BPMN fixtures.
+
+        Files without sequence flows are expected to fail in transformation.
+        Files with sequence flows should transform and keep gateway operators.
+        """
+        bpmn_files = get_process_example_bpmn_files()
+        self.assertGreater(len(bpmn_files), 0)
+
+        for bpmn_file in bpmn_files:
+            with self.subTest(file=str(bpmn_file)):
+                bpmn = BPMN.from_file(str(bpmn_file))
+
+                if len(bpmn.process.flows) == 0:
+                    with self.assertRaises(KeyError):
+                        bpmn_to_workflow_net(bpmn)
+                    continue
+
+                pn_transformed = bpmn_to_workflow_net(bpmn)
+                nodes = bpmn.process._flatten_node_typ_map()
+                gateway_count = len([n for n in nodes if isinstance(n, XorGateway)])
+
+                if gateway_count > 0:
+                    operator_transitions = [
+                        t
+                        for t in pn_transformed.net.transitions
+                        if t.is_workflow_operator()
+                    ]
+                    self.assertGreater(
+                        len(operator_transitions),
+                        0,
+                        (
+                            "Expected workflow operator transitions for gateway-containing "
+                            f"BPMN file: {bpmn_file}"
+                        ),
+                    )
+
+    def test_event_based_gateway_emits_workflow_operators(self):
+        """Ensure event-based gateways are exported as workflow operators in PNML."""
+        bpmn = BPMN.from_file(
+            "tests/transform/assets/diagrams/bpmn/04UnterstützungEventBasedGateway.bpmn"
+        )
+        pn_transformed = bpmn_to_workflow_net(bpmn)
+
+        operator_transitions = [
+            t for t in pn_transformed.net.transitions if t.is_workflow_operator()
+        ]
+
+        self.assertGreater(
+            len(operator_transitions),
+            0,
+            "Expected at least one workflow operator transition for gateway input",
+        )
+
+        operator_types = {
+            t.get_workflow_operator_type() for t in operator_transitions
+        }
+        self.assertIn(
+            WorkflowBranchingType.XorSplit,
+            operator_types,
+            "Expected XOR split operator for event-based gateway output",
+        )
+        self.assertIn(
+            WorkflowBranchingType.XorJoin,
+            operator_types,
+            "Expected XOR join operator for join gateway output",
+        )
+
+        serialized_pnml = pn_transformed.to_string()
+        self.assertIn("<operator", serialized_pnml)
+        self.assertIn('type="104"', serialized_pnml)
+        self.assertIn('type="105"', serialized_pnml)
 
 
 if __name__ == "__main__":

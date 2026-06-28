@@ -1,0 +1,241 @@
+<?xml version='1.0' encoding='utf-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL https://www.omg.org/spec/BPMN/20100501/BPMN20.xsd" targetNamespace="http://example.bpmn.com/schema/bpmn">
+  <process id="Process_1" isExecutable="false">
+    <startEvent id="startEvent1" name="bicycle received" />
+    <endEvent id="endEvent1" name="service completed" />
+    <userTask id="task1" name="perform internal intake" />
+    <userTask id="task2" name="assign job ticket" />
+    <userTask id="task3" name="record frame serial" />
+    <userTask id="task4" name="record brake condition" />
+    <userTask id="task5" name="record drivetrain condition" />
+    <userTask id="task6" name="record wheel condition" />
+    <userTask id="task7" name="record headset condition" />
+    <userTask id="task8" name="record suspension condition" />
+    <userTask id="task9" name="perform pre-inspection on stand" />
+    <userTask id="task10" name="check structural issues" />
+    <userTask id="task11" name="check safety risks" />
+    <userTask id="task12" name="check prior repairs" />
+    <userTask id="task13" name="decide service pathway" />
+    <userTask id="task14" name="confirm faults" />
+    <userTask id="task15" name="evaluate brakes" />
+    <userTask id="task16" name="evaluate drivetrain" />
+    <userTask id="task17" name="evaluate wheels" />
+    <userTask id="task18" name="identify hidden risks" />
+    <userTask id="task19" name="update job ticket" />
+    <userTask id="task20" name="flag parts for authorization" />
+    <userTask id="task21" name="perform repair sequence" />
+    <userTask id="task22" name="repair safety-critical systems" />
+    <userTask id="task23" name="repair drivetrain" />
+    <userTask id="task24" name="repair wheels" />
+    <userTask id="task25" name="repair accessories" />
+    <userTask id="task26" name="remove components with torque-aware procedure" />
+    <userTask id="task27" name="clean contact surfaces" />
+    <userTask id="task28" name="replace worn parts" />
+    <userTask id="task29" name="apply lubricants and thread compounds" />
+    <userTask id="task30" name="apply specified torques" />
+    <userTask id="task31" name="adjust cable tension" />
+    <userTask id="task32" name="adjust derailleur limits" />
+    <userTask id="task33" name="adjust brake clearance" />
+    <userTask id="task34" name="set bearing preload" />
+    <userTask id="task35" name="perform iterative adjustments" />
+    <userTask id="task36" name="perform internal quality check" />
+    <userTask id="task37" name="verify torque marks" />
+    <userTask id="task38" name="verify wheel retention" />
+    <userTask id="task39" name="verify brake engagement" />
+    <userTask id="task40" name="verify shifting across gears" />
+    <userTask id="task41" name="perform functional test" />
+    <userTask id="task42" name="correct defects" />
+    <userTask id="task43" name="repeat testing" />
+    <userTask id="task44" name="update service records" />
+    <userTask id="task45" name="reconcile tools" />
+    <userTask id="task46" name="log consumables" />
+    <userTask id="task47" name="tag removed parts" />
+    <userTask id="task48" name="stage bicycle with checklist" />
+    <exclusiveGateway id="gateway1" name="bike safe to proceed?" />
+    <exclusiveGateway id="gateway2" name="senior review complete" />
+    <exclusiveGateway id="gateway3" name="hidden risks found?" />
+    <exclusiveGateway id="gateway4" name="parts authorization resolved" />
+    <exclusiveGateway id="gateway5" name="adjustments stable?" />
+    <exclusiveGateway id="gateway6" name="adjustment loop complete" />
+    <exclusiveGateway id="gateway7" name="defect remains after test?" />
+    <exclusiveGateway id="gateway8" name="quality control complete" />
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="task1_di" bpmnElement="task1">
+        <dc:Bounds x="50" y="1022" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task2_di" bpmnElement="task2">
+        <dc:Bounds x="50" y="2452" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task3_di" bpmnElement="task3">
+        <dc:Bounds x="50" y="3882" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task4_di" bpmnElement="task4">
+        <dc:Bounds x="50" y="5312" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task5_di" bpmnElement="task5">
+        <dc:Bounds x="50" y="6612" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task6_di" bpmnElement="task6">
+        <dc:Bounds x="50" y="6742" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task7_di" bpmnElement="task7">
+        <dc:Bounds x="50" y="6872" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task8_di" bpmnElement="task8">
+        <dc:Bounds x="50" y="7002" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task9_di" bpmnElement="task9">
+        <dc:Bounds x="50" y="7132" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task10_di" bpmnElement="task10">
+        <dc:Bounds x="50" y="1152" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task11_di" bpmnElement="task11">
+        <dc:Bounds x="50" y="1282" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task12_di" bpmnElement="task12">
+        <dc:Bounds x="50" y="1412" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task13_di" bpmnElement="task13">
+        <dc:Bounds x="50" y="1542" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task14_di" bpmnElement="task14">
+        <dc:Bounds x="50" y="1672" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task15_di" bpmnElement="task15">
+        <dc:Bounds x="50" y="1802" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task16_di" bpmnElement="task16">
+        <dc:Bounds x="50" y="1932" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task17_di" bpmnElement="task17">
+        <dc:Bounds x="50" y="2062" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task18_di" bpmnElement="task18">
+        <dc:Bounds x="50" y="2192" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task19_di" bpmnElement="task19">
+        <dc:Bounds x="50" y="2322" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task20_di" bpmnElement="task20">
+        <dc:Bounds x="50" y="2582" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task21_di" bpmnElement="task21">
+        <dc:Bounds x="50" y="2712" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task22_di" bpmnElement="task22">
+        <dc:Bounds x="50" y="2842" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task23_di" bpmnElement="task23">
+        <dc:Bounds x="50" y="2972" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task24_di" bpmnElement="task24">
+        <dc:Bounds x="50" y="3102" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task25_di" bpmnElement="task25">
+        <dc:Bounds x="50" y="3232" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task26_di" bpmnElement="task26">
+        <dc:Bounds x="50" y="3362" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task27_di" bpmnElement="task27">
+        <dc:Bounds x="50" y="3492" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task28_di" bpmnElement="task28">
+        <dc:Bounds x="50" y="3622" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task29_di" bpmnElement="task29">
+        <dc:Bounds x="50" y="3752" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task30_di" bpmnElement="task30">
+        <dc:Bounds x="50" y="4012" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task31_di" bpmnElement="task31">
+        <dc:Bounds x="50" y="4142" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task32_di" bpmnElement="task32">
+        <dc:Bounds x="50" y="4272" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task33_di" bpmnElement="task33">
+        <dc:Bounds x="50" y="4402" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task34_di" bpmnElement="task34">
+        <dc:Bounds x="50" y="4532" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task35_di" bpmnElement="task35">
+        <dc:Bounds x="50" y="4662" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task36_di" bpmnElement="task36">
+        <dc:Bounds x="50" y="4792" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task37_di" bpmnElement="task37">
+        <dc:Bounds x="50" y="4922" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task38_di" bpmnElement="task38">
+        <dc:Bounds x="50" y="5052" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task39_di" bpmnElement="task39">
+        <dc:Bounds x="50" y="5182" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task40_di" bpmnElement="task40">
+        <dc:Bounds x="50" y="5442" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task41_di" bpmnElement="task41">
+        <dc:Bounds x="50" y="5572" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task42_di" bpmnElement="task42">
+        <dc:Bounds x="50" y="5702" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task43_di" bpmnElement="task43">
+        <dc:Bounds x="50" y="5832" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task44_di" bpmnElement="task44">
+        <dc:Bounds x="50" y="5962" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task45_di" bpmnElement="task45">
+        <dc:Bounds x="50" y="6092" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task46_di" bpmnElement="task46">
+        <dc:Bounds x="50" y="6222" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task47_di" bpmnElement="task47">
+        <dc:Bounds x="50" y="6352" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task48_di" bpmnElement="task48">
+        <dc:Bounds x="50" y="6482" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="startEvent1_di" bpmnElement="startEvent1">
+        <dc:Bounds x="82" y="936" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent1_di" bpmnElement="endEvent1">
+        <dc:Bounds x="82" y="50" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway1_di" bpmnElement="gateway1">
+        <dc:Bounds x="75" y="136" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway2_di" bpmnElement="gateway2">
+        <dc:Bounds x="75" y="236" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway3_di" bpmnElement="gateway3">
+        <dc:Bounds x="75" y="336" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway4_di" bpmnElement="gateway4">
+        <dc:Bounds x="75" y="436" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway5_di" bpmnElement="gateway5">
+        <dc:Bounds x="75" y="536" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway6_di" bpmnElement="gateway6">
+        <dc:Bounds x="75" y="636" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway7_di" bpmnElement="gateway7">
+        <dc:Bounds x="75" y="736" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway8_di" bpmnElement="gateway8">
+        <dc:Bounds x="75" y="836" width="50" height="50" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

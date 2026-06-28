@@ -16,7 +16,11 @@ def remove_unnecessary_gateways(bpmn: Process, gateways: set[Gateway]):
     """
     to_remove_gws: list[Gateway] = []
     for gw in gateways:
-        if gw.get_in_degree() > 1 or gw.get_out_degree() > 1:
+        in_degree = gw.get_in_degree()
+        out_degree = gw.get_out_degree()
+
+        # Only remove strict pass-through gateways (1 in, 1 out).
+        if not (in_degree == 1 and out_degree == 1):
             continue
         to_remove_gws.append(gw)
 

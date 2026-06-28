@@ -150,8 +150,15 @@ def transform_bpmn_to_petrinet(
             to_handle_user_tasks.append(node)
 
     nodes = nodes.difference(
-        to_handle_gateways, to_handle_subprocesses, to_handle_triggers
+        set(to_handle_gateways), set(to_handle_subprocesses), set(to_handle_triggers)
     )
+
+    leaked_gateways = [node for node in nodes if isinstance(node, Gateway)]
+    if leaked_gateways:
+        leaked_gateway_ids = ", ".join(sorted(node.id for node in leaked_gateways))
+        raise NotSupportedBPMNElement(
+            f"Internal gateway categorization failed for node(s): {leaked_gateway_ids}"
+        )
 
     logger.debug(
         f"Categorized nodes - Gateways: {len(to_handle_gateways)}, "
@@ -182,15 +189,7 @@ def transform_bpmn_to_petrinet(
                     ),
                 )
             )
-        elif isinstance(
-            node,
-            OrGateway
-            | XorGateway
-            | StartEvent
-            | EndEvent
-            | GenericBPMNNode
-            | EventGateway,
-        ):
+        elif isinstance(node, StartEvent | EndEvent | GenericBPMNNode):
             net.add_element(Place(id=node.id))
         else:
             raise NotSupportedBPMNElement(f"{type(node).__name__}")

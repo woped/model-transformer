@@ -203,8 +203,23 @@ def handle_gateway(net: Net, bpmn: Process, node: GenericBPMNNode):
         [cast(NetElement, net.get_element(x)) for x in target_ids], key=lambda x: x.id
     )
 
-    if not node.name:
-        node.name = ""
+    if len(net_sources) == 0 or len(net_targets) == 0:
+        raise InternalTransformationException(
+            f"Gateway {node.id} has unresolved net source/target elements"
+        )
+
+    type_prefix_map = {
+        XorGateway: "xor",
+        AndGateway: "and",
+        EventGateway: "event",
+    }
+    gw_prefix = type_prefix_map.get(node_type, "gateway")
+
+    def get_operator_name(kind: str):
+        if node.name:
+            return node.name
+        return f"{gw_prefix}-{kind}"
+
     # split
     if in_degree == 1:
         f_split(
@@ -212,14 +227,20 @@ def handle_gateway(net: Net, bpmn: Process, node: GenericBPMNNode):
             net_sources[0],
             net_targets,
             node.id,
-            node.name,
+            get_operator_name("split"),
         )
     # join
     elif out_degree == 1:
-        f_join(net, net_targets[0], net_sources, node.id, node.name)
+        f_join(net, net_targets[0], net_sources, node.id, get_operator_name("join"))
     # split and join
     else:
-        f_split_join(net, net_sources, net_targets, node.id, node.name)
+        f_split_join(
+            net,
+            net_sources,
+            net_targets,
+            node.id,
+            get_operator_name("join-split"),
+        )
 
 
 def handle_triggers(net: Net, bpmn: Process, triggers: list[IntermediateCatchEvent]):

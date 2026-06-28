@@ -11,6 +11,47 @@ on:
 jobs:
   semver:
     uses: woped/devops/.github/workflows/semver-and-release-notes.yaml@main
+
+  repo_version_tag:
+    name: Tag repo with version.py
+    runs-on: ubuntu-latest
+    needs: [ approval ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version from version.py
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(python3 - <<'PY'
+          import pathlib
+          import re
+
+          text = pathlib.Path("version.py").read_text(encoding="utf-8")
+          match = re.search(r'__version__\s*=\s*"([^"]+)"', text)
+          if not match:
+              raise SystemExit("Could not find __version__ in version.py")
+          print(match.group(1))
+          PY
+          )
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push tag
+        shell: bash
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          if git ls-remote --tags origin | grep -q "refs/tags/${TAG}$"; then
+            echo "Tag ${TAG} already exists on origin."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "$TAG"
+          git push origin "$TAG"
     
   approval:
     uses: woped/devops/.github/workflows/manual-approval.yaml@main
