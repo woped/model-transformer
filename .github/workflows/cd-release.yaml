@@ -13,38 +13,73 @@ jobs:
     uses: woped/devops/.github/workflows/semver-and-release-notes.yaml@main
 
   repo_version_tag:
-    name: Tag repo with version.py
+    name: Tag repo with bump policy
     runs-on: ubuntu-latest
     needs: [ approval ]
+    env:
+      ALLOW_MINOR_BUMP: ${{ vars.ALLOW_MINOR_BUMP }}
+      ALLOW_MAJOR_BUMP: ${{ vars.ALLOW_MAJOR_BUMP }}
+      SEMVER_VERSION: ${{ needs.semver.outputs.VERSION }}
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      tag_created: ${{ steps.tag.outputs.tag_created }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Read version from version.py
-        id: version
-        shell: bash
-        run: |
-          VERSION=$(python3 - <<'PY'
-          import pathlib
-          import re
-
-          text = pathlib.Path("version.py").read_text(encoding="utf-8")
-          match = re.search(r'__version__\s*=\s*"([^"]+)"', text)
-          if not match:
-              raise SystemExit("Could not find __version__ in version.py")
-          print(match.group(1))
-          PY
-          )
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
       - name: Create and push tag
+        id: tag
         shell: bash
         run: |
-          TAG="v${{ steps.version.outputs.version }}"
+          normalize_bool() {
+            case "$(echo "$1" | tr '[:upper:]' '[:lower:]')" in
+              true|1|yes|y|on) echo "true" ;;
+              *) echo "false" ;;
+            esac
+          }
+
+          ALLOW_MINOR="$(normalize_bool "${ALLOW_MINOR_BUMP:-false}")"
+          ALLOW_MAJOR="$(normalize_bool "${ALLOW_MAJOR_BUMP:-false}")"
+
+          LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1)
+          if [ -z "$LATEST_TAG" ]; then
+            LATEST_TAG="v0.0.0"
+          fi
+
+          BASE_VERSION="${LATEST_TAG#v}"
+          IFS='.' read -r BASE_MAJOR BASE_MINOR BASE_PATCH <<< "$BASE_VERSION"
+
+          TARGET_MAJOR="$BASE_MAJOR"
+          TARGET_MINOR="$BASE_MINOR"
+          TARGET_PATCH=$((BASE_PATCH + 1))
+
+          if [[ "$SEMVER_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.-]+)?$ ]]; then
+            IFS='.' read -r SEM_MAJOR SEM_MINOR SEM_PATCH <<< "${SEMVER_VERSION%%[-+]*}"
+
+            if [ "$SEM_MAJOR" -gt "$BASE_MAJOR" ] && [ "$ALLOW_MAJOR" = "true" ]; then
+              TARGET_MAJOR="$SEM_MAJOR"
+              TARGET_MINOR="$SEM_MINOR"
+              TARGET_PATCH="$SEM_PATCH"
+              echo "Applying major bump from semver: $SEMVER_VERSION"
+            elif [ "$SEM_MAJOR" -eq "$BASE_MAJOR" ] && [ "$SEM_MINOR" -gt "$BASE_MINOR" ] && [ "$ALLOW_MINOR" = "true" ]; then
+              TARGET_MAJOR="$SEM_MAJOR"
+              TARGET_MINOR="$SEM_MINOR"
+              TARGET_PATCH="$SEM_PATCH"
+              echo "Applying minor bump from semver: $SEMVER_VERSION"
+            else
+              echo "Applying automatic patch bump from latest tag: $LATEST_TAG"
+            fi
+          else
+            echo "Semver output is empty or invalid ('$SEMVER_VERSION'); applying automatic patch bump."
+          fi
+
+          TAG="v${TARGET_MAJOR}.${TARGET_MINOR}.${TARGET_PATCH}"
           if git ls-remote --tags origin | grep -q "refs/tags/${TAG}$"; then
             echo "Tag ${TAG} already exists on origin."
+            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+            echo "tag_created=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -52,6 +87,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag "$TAG"
           git push origin "$TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "tag_created=true" >> "$GITHUB_OUTPUT"
     
   approval:
     uses: woped/devops/.github/workflows/manual-approval.yaml@main
@@ -60,15 +97,19 @@ jobs:
       VERSION: ${{ needs.semver.outputs.VERSION }}
 
   gh_release:
-    uses: woped/devops/.github/workflows/github-release.yaml@main
-    needs: [ semver, approval ]
+    uses: woped/devops/.github/workflows/github-release-python-flask.yaml@main
+    needs: [ semver, approval, repo_version_tag ]
+    if: ${{ needs.repo_version_tag.outputs.tag_created == 'true' }}
     with:
-      VERSION: ${{ needs.semver.outputs.VERSION }}
+      TAG: ${{ needs.repo_version_tag.outputs.tag }}
       RELEASE_NOTES: ${{ needs.semver.outputs.RELEASE_NOTES }}
 
   docker_build_and_push_python:
     uses: woped/devops/.github/workflows/docker-build-and-push-python.yaml@main
-    needs: [ semver, approval ]
+    needs: [ semver, approval, repo_version_tag ]
+    if: ${{ needs.repo_version_tag.outputs.tag_created == 'true' }}
+    with:
+      tag: ${{ needs.repo_version_tag.outputs.tag }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
