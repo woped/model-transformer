@@ -3,6 +3,7 @@ FROM python:3.13-slim
 
 ENV FLASK_APP=flasky.py \
     FLASK_CONFIG=production \
+    FORCE_STD_XML=true \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
