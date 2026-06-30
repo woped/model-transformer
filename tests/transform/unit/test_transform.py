@@ -281,7 +281,7 @@ class TestBPMNToWorkflowNet(unittest.TestCase):
     def test_event_based_gateway_emits_workflow_operators(self):
         """Ensure event-based gateways are exported as workflow operators in PNML."""
         bpmn = BPMN.from_file(
-            "tests/transform/assets/diagrams/bpmn/04UnterstützungEventBasedGateway.bpmn"
+            "tests/transform/assets/examples/bpmn/04UnterstützungEventBasedGateway.bpmn"
         )
         pn_transformed = bpmn_to_workflow_net(bpmn)
 
