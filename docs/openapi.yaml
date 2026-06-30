@@ -52,16 +52,28 @@ paths:
       responses:
         200:
           description: Successful Transformation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      pnml:
+                        type: string
+                        description: 'Transformed PNML XML. Returned when direction is "bpmntopnml".'
+                    required: [pnml]
+                  - type: object
+                    properties:
+                      bpmn:
+                        type: string
+                        description: 'Transformed BPMN XML. Returned when direction is "pnmltobpmn".'
+                    required: [bpmn]
         400:
-          description: Bad Request
+          description: Bad Request. Returned for all handled errors, including invalid input and when no request tokens are available.
         404:
           description: Not Found
-        408:
-          description: Request Timeout after 60s
-        413:
-          description: Payload too large (max. 10 MB)
-        429:
-          description: Too Many Requests, service is temporarily unavailable.
+        500:
+          description: Internal Server Error
   "/health":
     get:
       summary: Shows the health status of transformer.
@@ -72,7 +84,15 @@ paths:
           description: Bad Request
         404:
           description: Not Found
-        408:
-          description: Request Timeout after 60s
-        429:
-          description: Too Many Requests, service is temporarily unavailable.
+        500:
+          description: Internal Server Error
+  "/metrics":
+    get:
+      summary: Exposes Prometheus metrics in text format.
+      responses:
+        200:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string

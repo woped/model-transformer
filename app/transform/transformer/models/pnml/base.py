@@ -3,7 +3,6 @@
 from pydantic_xml import attr, element
 
 from app.transform.transformer.models.pnml.graphics import (
-    Coordinates,
     OffsetGraphics,
     PositionGraphics,
 )
@@ -20,7 +19,7 @@ from app.transform.transformer.utility.utility import WOPED, BaseModel
 class Name(BaseModel, tag="name"):  # type: ignore[call-arg]
     """Name extension of BaseModel (+graphics, title)."""
 
-    graphics: OffsetGraphics = element(default=OffsetGraphics())
+    graphics: OffsetGraphics | None = element(default=None)
     title: str | None = element(tag="text", default=None)
 
 
@@ -50,16 +49,6 @@ class ToolspecificGlobal(BaseModel, tag="toolspecific"):  # type: ignore[call-ar
     version: str = attr(default="1.0")
 
     resources: Resources | None = None
-    bounds: PositionGraphics = element(tag="bounds", default=PositionGraphics())
-    scale: str = element(tag="scale", default="100")
-    treeWidthRight: str = element(tag="treeWidthRight", default="748")
-    overviewPanelVisible: str = element(tag="overviewPanelVisible", default="true")
-    treeHeightOverview: str = element(tag="treeHeightOverview", default="100")
-    treePanelVisible: str = element(tag="treePanelVisible", default="true")
-    verticalLayout: str = element(tag="verticalLayout", default="false")
-    simulations: str = element(tag="simulations", default=None)
-    partnerLinks: str = element(tag="partnerLinks", default=None)
-    variables: str = element(tag="variables", default=None)
 
 
 class Toolspecific(BaseModel, tag="toolspecific"):  # type: ignore[call-arg]
@@ -67,11 +56,6 @@ class Toolspecific(BaseModel, tag="toolspecific"):  # type: ignore[call-arg]
 
     tool: str = attr(default=WOPED)
     version: str = attr(default="1.0")
-
-    # normal transition
-    time: str | None = element(tag="time", default="0")
-    timeUnit: str | None = element(tag="timeUnit", default="1")
-    orientation: str | None = element(tag="orientation", default="1")
 
     # wf-operator
     operator: Operator | None = None
@@ -81,11 +65,6 @@ class Toolspecific(BaseModel, tag="toolspecific"):  # type: ignore[call-arg]
 
     # transition resource
     transitionResource: TransitionResource | None = None
-
-    # arc
-    probability: str | None = element(tag="probability", default=None)
-    displayProbabilityOn: str | None = element(tag="displayProbabilityOn", default=None)
-    displayProbabilityPosition: Coordinates | None = None
 
     # subprocess
     subprocess: bool | None = element(tag="subprocess", default=None)
@@ -105,16 +84,12 @@ class Toolspecific(BaseModel, tag="toolspecific"):  # type: ignore[call-arg]
     def is_workflow_message(self):
         """Returns whether instance is a workflow message trigger."""
         return (
-            self.is_woped()
-            and self.trigger
-            and self.trigger.type is TriggerType.Message
+            self.is_woped() and self.trigger and self.trigger.type is TriggerType.Message
         )
 
     def is_workflow_time(self):
         """Returns whether instance is a workflow time trigger."""
-        return (
-            self.is_woped() and self.trigger and self.trigger.type is TriggerType.Time
-        )
+        return self.is_woped() and self.trigger and self.trigger.type is TriggerType.Time
 
     def is_workflow_resource(self):
         """Returns whether instance is a workflow resource trigger."""
@@ -143,20 +118,12 @@ class NetElement(BaseModel):
             return None
         return self.name.title
 
-    def set_name(self, new_name: str):
-        """Sets the name from a string."""
-        self.name = Name(title=new_name)
-
     def set_copy_of_exisiting_toolspecific(self, tool: Toolspecific | None):
         """Set a copy of a existing Toolspecific instance."""
         if not tool:
             return self
         self.toolspecific = tool.model_copy()
         return self
-
-    def is_workflow_element(self):
-        """Return whether instance is workflow element."""
-        return self.toolspecific and self.toolspecific.is_woped()
 
     def is_workflow_operator(self):
         """Return whether instance is workflow operator."""

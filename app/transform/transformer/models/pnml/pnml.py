@@ -75,15 +75,13 @@ class Page(BaseModel, tag="page"):  # type: ignore[call-arg]
 
 
 class Net(BaseModel, tag="net"):  # type: ignore[call-arg]
-    """Net extension of BaseModel (+ID, type_field, places, transitions, arcs...).
+    """Net extension of BaseModel (+ID, places, transitions, arcs...).
 
     This class also contains internal helperstructures to improve the performance of
     operations. It also contains helper methods to modify the Net.
     """
 
     toolspecific_global: ToolspecificGlobal | None = None
-
-    type_field: str | None = attr(default=None, alias="type")
 
     places: set[Place] = element(default_factory=set)
     transitions: set[Transition] = element(default_factory=set)
@@ -171,12 +169,6 @@ class Net(BaseModel, tag="net"):  # type: ignore[call-arg]
             return 0
         return len(self._temp_node_id_to_outgoing[node.id])
 
-    def add_arc_with_handle_same_type_from_id(self, source_id: str, target_id: str):
-        """Add arc connecting source and target id."""
-        source = self._temp_elements[source_id]
-        target = self._temp_elements[target_id]
-        self.add_arc_with_handle_same_type(source, target)
-
     def add_arc_with_handle_same_type(self, source: NetElement, target: NetElement):
         """Add arc and add node should source and target be of same type."""
         if isinstance(source, Place) and isinstance(target, Place):
@@ -186,9 +178,7 @@ class Net(BaseModel, tag="net"):  # type: ignore[call-arg]
             self.add_arc(source, t)
             self.add_arc(t, target)
         elif isinstance(source, Transition) and isinstance(target, Transition):
-            p = self.add_element(
-                Place(id=create_silent_node_name(source.id, target.id))
-            )
+            p = self.add_element(Place(id=create_silent_node_name(source.id, target.id)))
             self.add_arc(source, p)
             self.add_arc(p, target)
         else:

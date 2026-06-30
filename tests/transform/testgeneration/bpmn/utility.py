@@ -65,4 +65,3 @@ def insert_bpmn_xml(xml_content: str, new_tag: str, force_id: str = "temp"):
     val = f.getvalue()
     f.close()
     return val
-

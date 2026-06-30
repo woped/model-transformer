@@ -14,7 +14,6 @@ from app.transform.transformer.models.bpmn.bpmn import (
     IntermediateCatchEvent,
     OrGateway,
     Process,
-    ServiceTask,
     StartEvent,
     UserTask,
     XorGateway,
@@ -28,7 +27,6 @@ from app.transform.transformer.transform_bpmn_to_petrinet.participants import (
 from app.transform.transformer.transform_bpmn_to_petrinet.preprocess_bpmn import (
     adjacent_inserter,
     all_gateways,
-    or_gateways,
 )
 from app.transform.transformer.transform_bpmn_to_petrinet.transform_workflow_helper import (
     handle_gateways,
@@ -37,7 +35,6 @@ from app.transform.transformer.transform_bpmn_to_petrinet.transform_workflow_hel
     handle_triggers,
 )
 from app.transform.transformer.utility.pnml import find_triggers
-from app.transform.transformer.utility.utility import create_silent_node_name
 
 logger = logging.getLogger(__name__)
 
@@ -171,12 +168,9 @@ def transform_bpmn_to_petrinet(
     logger.debug("Processing regular nodes")
     for node in nodes:
         if isinstance(node, GenericTask | AndGateway | IntermediateCatchEvent):
+            # The task type (UserTask/ServiceTask) is carried by the WoPeD
+            # toolspecific resource marking, not by polluting the visible name.
             name = node.name
-            if isinstance(node, UserTask):
-                name = f"[UserTask] {node.name}"
-            elif isinstance(node, ServiceTask):
-                name = f"[ServiceTask] {node.name}"
-
             net.add_element(
                 Transition.create(
                     id=node.id,
@@ -215,24 +209,15 @@ def transform_bpmn_to_petrinet(
         target = net.get_node_or_none(flow.targetRef)
         if source is None or target is None:
             continue
-        if isinstance(source, Place) and isinstance(target, Place):
-            t = net.add_element(
-                Transition(id=create_silent_node_name(source.id, target.id))
-            )
-            net.add_arc(source, t)
-            net.add_arc(t, target)
-        elif isinstance(source, Transition) and isinstance(target, Transition):
-            p = net.add_element(Place(id=create_silent_node_name(source.id, target.id)))
-            net.add_arc(source, p)
-            net.add_arc(p, target)
-        else:
-            net.add_arc(source, target)
+        net.add_arc_with_handle_same_type(source, target)
 
     # Post processing
     logger.debug("Starting post-processing")
     merge_single_triggers(net)
     logger.debug(
-        f"Transformation completed - Final net has {len(net.places)} places and {len(net.transitions)} transitions"
+        "Transformation completed - Final net has %s places and %s transitions",
+        len(net.places),
+        len(net.transitions),
     )
 
     return pnml
@@ -258,7 +243,6 @@ def bpmn_to_workflow_net(bpmn: BPMN):
     apply_preprocessing(
         bpmn.process,
         [
-            or_gateways.replace_inclusive_gateways,
             all_gateways.preprocess_gateways,
             adjacent_inserter.insert_temp_between_adjacent_mapped_transition,
         ],

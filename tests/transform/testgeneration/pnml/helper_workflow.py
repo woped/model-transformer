@@ -22,4 +22,3 @@ def create_operator_transition(
     transition = Transition.create(id=new_id, name=name)
     transition.mark_as_workflow_operator(branching_type, id)
     return transition
-

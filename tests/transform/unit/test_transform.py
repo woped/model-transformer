@@ -13,8 +13,7 @@ from tests.transform.testgeneration.testcases.bpmn_to_pnml.ignored_cases import 
 from tests.transform.testgeneration.testcases.bpmn_to_pnml.supported_cases import (
     all_cases as supported_cases_bpmn,
 )
-from tests.transform.testgeneration.testcases.bpmn_to_pnml.supported_cases_workflow\
-import (
+from tests.transform.testgeneration.testcases.bpmn_to_pnml.supported_cases_workflow import (
     supported_cases_workflow_bpmn,
 )
 from tests.transform.testgeneration.testcases.bpmn_to_pnml.unsupported_cases import (
@@ -23,8 +22,7 @@ from tests.transform.testgeneration.testcases.bpmn_to_pnml.unsupported_cases imp
 from tests.transform.testgeneration.testcases.pnml_to_bpmn.supported_cases import (
     all_cases as supported_cases_pnml,
 )
-from tests.transform.testgeneration.testcases.pnml_to_bpmn.supported_cases_workflow\
-import (
+from tests.transform.testgeneration.testcases.pnml_to_bpmn.supported_cases_workflow import (
     supported_cases_workflow_pnml,
 )
 from tests.transform.testgeneration.utility import clear
@@ -321,4 +319,3 @@ if __name__ == "__main__":
     if Path(LOG_PATH).exists():
         shutil.rmtree(LOG_PATH)
     unittest.main()
-

@@ -50,4 +50,3 @@ def generate():
 
 
 all_cases = generate()
-

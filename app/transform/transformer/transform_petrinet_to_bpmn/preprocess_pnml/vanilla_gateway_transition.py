@@ -1,11 +1,14 @@
-"""Split a AND transition with a name (implicit task)."""
+"""Split an AND transition with a name (implicit task) into gateways + explicit task."""
 
-from app.transform.exceptions import InternalTransformationException
+from app.transform.transformer.models.pnml.base import NetElement
 from app.transform.transformer.models.pnml.pnml import Net, Transition
+from app.transform.transformer.transform_petrinet_to_bpmn.preprocess_pnml.split_dispatch import (
+    split_by_degree,
+)
 from app.transform.transformer.utility.pnml import generate_explicit_transition_id
 
 
-def handle_gateway_creation(and_gateway: Transition):
+def handle_gateway_creation(and_gateway: NetElement):
     """Handle the creation of the explicit task of the gateway.
 
     This function also looks at possible Toolspecific annotations.
@@ -22,61 +25,10 @@ def handle_gateway_creation(and_gateway: Transition):
     return explicit_transition
 
 
-def handle_split(net: Net, and_gateway: Transition):
-    """Split into a gateway and explicit task.
-
-    This function also looks at possible Toolspecific annotations.
-    """
-    incoming_arcs = net.get_incoming_and_remove_arcs(and_gateway)
-
-    explicit_transition = handle_gateway_creation(and_gateway)
-
-    net.add_element(explicit_transition)
-
-    net.add_arc_with_handle_same_type(explicit_transition, and_gateway)
-
-    net.connect_to_element(explicit_transition, incoming_arcs)
-
-
-def handle_join(net: Net, and_gateway: Transition):
-    """Split into a gateway and explicit task.
-
-    This function also looks at possible Toolspecific annotations.
-    """
-    outgoing_arcs = net.get_outgoing_and_remove_arcs(and_gateway)
-
-    explicit_transition = handle_gateway_creation(and_gateway)
-
-    net.add_element(explicit_transition)
-
-    net.add_arc_with_handle_same_type(and_gateway, explicit_transition)
-
-    net.connect_from_element(explicit_transition, outgoing_arcs)
-
-
-def handle_join_split(net: Net, and_gateway: Transition):
-    """Split into two gateways and explicit task.
-
-    This function also looks at possible Toolspecific annotations.
-    """
-    outgoing_arcs = net.get_outgoing_and_remove_arcs(and_gateway)
-
-    explicit_transition = handle_gateway_creation(and_gateway)
-    and_end_gateway = Transition.create("OUTAND" + and_gateway.id)
-
-    # Also sets the resource for the end gateway
-    if explicit_transition.is_workflow_resource():
-        and_end_gateway.set_copy_of_exisiting_toolspecific(
-            explicit_transition.toolspecific
-        )
-
-    net.add_element(explicit_transition)
-    net.add_element(and_end_gateway)
-
-    net.add_arc_with_handle_same_type(and_gateway, explicit_transition)
-    net.add_arc_with_handle_same_type(explicit_transition, and_end_gateway)
-
-    net.connect_from_element(and_end_gateway, outgoing_arcs)
+def _copy_resource_to_end_gateway(explicit: NetElement, end_gateway: Transition):
+    """In a join-split, carry the resource annotation onto the end gateway too."""
+    if explicit.is_workflow_resource():
+        end_gateway.set_copy_of_exisiting_toolspecific(explicit.toolspecific)
 
 
 def split_and_gw_with_name(net: Net):
@@ -90,19 +42,11 @@ def split_and_gw_with_name(net: Net):
         if (net.get_in_degree(t) > 1 or net.get_out_degree(t) > 1) and t.get_name()
     ]
     for and_gateway in and_gateways:
-        in_degree = net.get_in_degree(and_gateway)
-        out_degree = net.get_out_degree(and_gateway)
-        # Split and join
-        if in_degree > 1 and out_degree > 1:
-            handle_join_split(net, and_gateway)
-        # Join
-        elif in_degree > 1:
-            handle_join(net, and_gateway)
-        # Split
-        elif out_degree > 1:
-            handle_split(net, and_gateway)
-        else:
-            raise InternalTransformationException("Should not happen.")
-
+        split_by_degree(
+            net,
+            and_gateway,
+            handle_gateway_creation,
+            after_create=_copy_resource_to_end_gateway,
+        )
         # Remove name because already handled by explicit transition
         and_gateway.name = None

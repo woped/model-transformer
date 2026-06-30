@@ -24,9 +24,7 @@ class RequestContextFilter(logging.Filter):
         try:
             record.http_method = request.method if request is not None else None
             record.http_path = request.path if request is not None else None
-            record.request_id = (
-                getattr(g, "request_id", None) if g is not None else None
-            )
+            record.request_id = getattr(g, "request_id", None) if g is not None else None
         except RuntimeError:
             record.http_method = None
             record.http_path = None

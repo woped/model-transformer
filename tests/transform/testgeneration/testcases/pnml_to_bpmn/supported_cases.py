@@ -424,4 +424,3 @@ all_cases: list[tuple[BPMN, Pnml, str]] = [
     and_join_split_transition_implicit(),
     xor_place(),
 ]
-

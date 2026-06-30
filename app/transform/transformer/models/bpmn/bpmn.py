@@ -119,9 +119,7 @@ class IntermediateCatchEvent(GenericBPMNNode, tag="intermediateCatchEvent"):  # 
     @staticmethod
     def create_message_event(id: str, name: str | None = None):
         """Create a message event."""
-        return IntermediateCatchEvent(
-            id=id, name=name, messageEvent=MessageEvent(id="")
-        )
+        return IntermediateCatchEvent(id=id, name=name, messageEvent=MessageEvent(id=""))
 
     @staticmethod
     def create_time_event(id: str, name: str | None = None):
@@ -310,10 +308,6 @@ class Process(GenericBPMNNode):
         """Return a node by id."""
         return self._temp_nodes[id]
 
-    def is_node_existing(self, id: str):
-        """Returns whether node with a id is existing in process."""
-        return id in self._temp_nodes
-
     def change_node_id(self, node: GenericBPMNNode, new_id: str):
         """Change node id and update connected flows."""
         incoming_flows: set[Flow] = self._temp_node_id_to_incoming.get(node.id, set())
@@ -396,11 +390,6 @@ class Process(GenericBPMNNode):
 
         self._remove_actual_flow(flow)
 
-    def add_nodes(self, *args: GenericBPMNNode):
-        """Add multiple nodes to the BPMN."""
-        for node in args:
-            self.add_node(node)
-
     def add_node(self, new_node: GenericBPMNNode):
         """Add single node to the BPMN."""
         storage_set = self._type_map[type(new_node)]
@@ -417,7 +406,15 @@ class Process(GenericBPMNNode):
         return new_node
 
     def remove_node(self, to_remove_node: GenericBPMNNode):
-        """Remove single node frome the BPMN."""
+        """Remove a single node from the BPMN, together with its connected flows.
+
+        The flows touching the node are removed outright via ``remove_flow``
+        rather than merely having their dangling ref blanked. Blanking left a
+        flow registered in a neighbour's adjacency index with an empty
+        ``sourceRef``/``targetRef``; a later ``get_outgoing``/``get_incoming``
+        then returned it and ``get_node("")`` raised ``KeyError ''`` (e.g. when a
+        removable gateway sat directly downstream of a surviving split gateway).
+        """
         storage_set = self._type_map[type(to_remove_node)]
         if storage_set is None:
             raise InternalTransformationException("No BPMN node")
@@ -425,30 +422,18 @@ class Process(GenericBPMNNode):
         if to_remove_node not in storage_set:
             raise InternalTransformationException("Node doesnt exist")
 
+        # Copy first: remove_flow mutates the index sets we are reading from.
+        connected_flows = set(
+            self._temp_node_id_to_incoming.get(to_remove_node.id, set())
+        ) | set(self._temp_node_id_to_outgoing.get(to_remove_node.id, set()))
+        for arc in connected_flows:
+            self.remove_flow(arc)
+
+        self._temp_node_id_to_incoming.pop(to_remove_node.id, None)
+        self._temp_node_id_to_outgoing.pop(to_remove_node.id, None)
+
         storage_set.remove(to_remove_node)
-
         self._temp_nodes.pop(to_remove_node.id)
-
-        if to_remove_node.id in self._temp_node_id_to_incoming:
-            incoming = self._temp_node_id_to_incoming.pop(to_remove_node.id)
-            for arc in incoming:
-                arc.targetRef = ""
-        if to_remove_node.id in self._temp_node_id_to_outgoing:
-            outgoing = self._temp_node_id_to_outgoing.pop(to_remove_node.id)
-            for arc in outgoing:
-                arc.sourceRef = ""
-
-    def get_flow_target_by_id(self, flow_id: str):
-        """Return target nodes from flow id."""
-        return self._temp_nodes[self._temp_flows[flow_id].targetRef]
-
-    def get_flow_source_by_id(self, flow_id: str):
-        """Return source nodes from flow id."""
-        return self._temp_nodes[self._temp_flows[flow_id].sourceRef]
-
-    def get_flow(self, id: str):
-        """Return flow by id."""
-        return self._temp_flows[id]
 
     def remove_node_with_connecting_flows(self, node: GenericBPMNNode):
         """Remove node and its connected flows."""
@@ -485,7 +470,8 @@ class BPMN(BPMNNamespace, tag="definitions"):  # type: ignore[call-arg]
                 used_tags.add(get_tag_name(elem))
             unhandled_tags = used_tags.difference(supported_tags)
             logger.debug(
-                f"Found {len(used_tags)} unique BPMN tags, {amount_of_participants} participants"
+                f"Found {len(used_tags)} unique BPMN tags, "
+                f"{amount_of_participants} participants"
             )
             if amount_of_participants > 1:
                 raise NotSupportedBPMNElement(
@@ -497,7 +483,8 @@ class BPMN(BPMNNamespace, tag="definitions"):  # type: ignore[call-arg]
                 raise NotSupportedBPMNElement(str(unhandled_tags))
             bpmn = BPMN.from_xml_tree(tree)
             logger.debug(
-                f"Successfully parsed BPMN with process ID: {bpmn.process.id if bpmn.process else 'N/A'}"
+                "Successfully parsed BPMN with process ID: "
+                f"{bpmn.process.id if bpmn.process else 'N/A'}"
             )
             return bpmn
         except NotSupportedBPMNElement as e:

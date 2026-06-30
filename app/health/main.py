@@ -1,7 +1,8 @@
-"""Implements the 'get_health' HTTP Cloud Function.
+"""Implements the 'get_health' Flask route handler.
 
-This module defines a Google Cloud Function for responding to HTTP requests
-with the health status of the service, indicating if it's operational.
+This module defines the handler behind the Flask blueprint route ``/health``
+(registered in ``app/api/routes.py``) for responding to HTTP requests with the
+health status of the service, indicating if it's operational.
 """
 
 import logging
@@ -12,15 +13,15 @@ logger = logging.getLogger(__name__)
 
 
 def get_health(request):
-    """HTTP Cloud Function.
+    """Flask route handler for the health check.
 
     Args:
         request (flask.Request): The request object.
-        <https://flask.palletsprojects.com/en/1.1.x/api/#incoming-request-data>
+        <https://flask.palletsprojects.com/en/stable/api/#incoming-request-data>
     Returns:
         The response text, or any set of values that can be turned into a
         Response object using `make_response`
-        <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
+        <https://flask.palletsprojects.com/en/stable/api/#flask.make_response>.
     """
     if request.method == "OPTIONS":
         # Handle CORS preflight request
