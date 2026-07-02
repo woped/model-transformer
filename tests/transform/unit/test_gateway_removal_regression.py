@@ -67,3 +67,10 @@ def test_removable_gateway_after_split_transforms_without_keyerror():
     assert pnml is not None
     # The removable gateway B is gone after preprocessing/transformation.
     assert "B" not in bpmn.process._temp_nodes
+
+
+def test_bicycle_repair_example_transforms_without_gateway_keyerror():
+    """The bicycle_repair example should not fail with KeyError on gateways."""
+    bpmn = BPMN.from_file("tests/process_examples/bpmn/bicycle_repair.bpmn")
+    pnml = bpmn_to_workflow_net(bpmn)
+    assert pnml is not None

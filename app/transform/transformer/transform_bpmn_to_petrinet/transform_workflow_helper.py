@@ -165,6 +165,14 @@ type_map = {
 def handle_gateways(net: Net, bpmn: Process, gateways: list[Gateway]):
     """Handle gateway transformation to workflow operators."""
     for gateway in gateways:
+        # Gateway preprocessing may remove/rewire gateways and their adjacency
+        # entries. Skip stale gateway references safely.
+        if gateway.id not in bpmn._temp_nodes:
+            continue
+        if gateway.id not in bpmn._temp_node_id_to_incoming:
+            continue
+        if gateway.id not in bpmn._temp_node_id_to_outgoing:
+            continue
         handle_gateway(net, bpmn, gateway)
 
 

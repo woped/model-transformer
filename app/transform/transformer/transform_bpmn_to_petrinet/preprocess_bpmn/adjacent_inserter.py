@@ -33,7 +33,14 @@ def insert_temp_between_adjacent_mapped_transition(bpmn: Process):
         if not is_target_wf_transition(node):
             continue
 
-        for incoming_flow in bpmn.get_incoming(node.id).copy():
+        # Preprocessing can mutate/remove nodes and adjacency maps during the same
+        # pass, so skip stale node references safely.
+        if node.id not in bpmn._temp_nodes:
+            continue
+
+        for incoming_flow in bpmn._temp_node_id_to_incoming.get(node.id, set()).copy():
+            if incoming_flow.sourceRef not in bpmn._temp_nodes:
+                continue
             incoming_node = bpmn.get_node(incoming_flow.sourceRef)
             # Connected node is already place like
             if is_place_like(incoming_node):
@@ -49,7 +56,9 @@ def insert_temp_between_adjacent_mapped_transition(bpmn: Process):
             bpmn.add_flow(incoming_node, linking_node)
             bpmn.add_flow(linking_node, node)
 
-        for outgoing_flow in bpmn.get_outgoing(node.id).copy():
+        for outgoing_flow in bpmn._temp_node_id_to_outgoing.get(node.id, set()).copy():
+            if outgoing_flow.targetRef not in bpmn._temp_nodes:
+                continue
             outgoing_node = bpmn.get_node(outgoing_flow.targetRef)
             # Connected node is already place like
             if is_place_like(outgoing_node):

@@ -39,8 +39,16 @@ def remove_unnecessary_gateways(bpmn: Process, gateways: set[Gateway]):
 def add_pn_place_between_adjacent_gateways(bpmn: Process, gateways: set[Gateway]):
     """Add place between neighboring gateways in a list of gateways."""
     for gw in gateways:
+        # Gateways can become stale during preprocessing when previous gateway
+        # rewiring removed or altered adjacency for this node.
+        if gw.id not in bpmn._temp_nodes:
+            continue
+
+        outgoing_flows = bpmn._temp_node_id_to_outgoing.get(gw.id, set())
         out_nodes: list[tuple[GenericBPMNNode, Flow]] = [
-            (bpmn.get_node(x.targetRef), x) for x in bpmn.get_outgoing(gw.id)
+            (bpmn.get_node(x.targetRef), x)
+            for x in outgoing_flows
+            if x.targetRef in bpmn._temp_nodes
         ]
 
         for out_node, out_flow in out_nodes:

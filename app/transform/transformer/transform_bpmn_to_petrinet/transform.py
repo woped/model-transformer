@@ -3,7 +3,10 @@
 import logging
 from collections.abc import Callable
 
-from app.transform.exceptions import NotSupportedBPMNElement
+from app.transform.exceptions import (
+    InternalTransformationException,
+    NotSupportedBPMNElement,
+)
 from app.transform.transformer.models.bpmn.base import Gateway, GenericBPMNNode
 from app.transform.transformer.models.bpmn.bpmn import (
     BPMN,
@@ -35,8 +38,90 @@ from app.transform.transformer.transform_bpmn_to_petrinet.transform_workflow_hel
     handle_triggers,
 )
 from app.transform.transformer.utility.pnml import find_triggers
+from app.transform.transformer.utility.pnml import generate_sink_id, generate_source_id
+from app.transform.transformer.utility.utility import create_silent_node_name
 
 logger = logging.getLogger(__name__)
+
+
+def _unique_node_id(net: Net, base_id: str):
+    """Return a node id that does not collide with existing net elements."""
+    if net.get_node_or_none(base_id) is None:
+        return base_id
+    i = 1
+    while net.get_node_or_none(f"{base_id}_{i}") is not None:
+        i += 1
+    return f"{base_id}_{i}"
+
+
+def _normalize_transition_connections(net: Net):
+    """Normalize transition wiring so transition-side rules are always satisfied.
+
+    Rules enforced:
+    - every transition has at least one incoming and one outgoing arc
+    - every incoming/outgoing transition connection is to/from a place
+    - no transition remains both a join and split at the same time
+    """
+    for transition in list(net.transitions):
+        if net.get_in_degree(transition) == 0:
+            source_id = _unique_node_id(net, generate_source_id(transition.id))
+            source_place = net.add_element(Place.create(source_id))
+            net.add_arc(source_place, transition)
+
+        if net.get_out_degree(transition) == 0:
+            sink_id = _unique_node_id(net, generate_sink_id(transition.id))
+            sink_place = net.add_element(Place.create(sink_id))
+            net.add_arc(transition, sink_place)
+
+    for transition in list(net.transitions):
+        incoming_arcs = list(net.get_incoming(transition.id))
+        for arc in incoming_arcs:
+            source = net.get_element(arc.source)
+            if isinstance(source, Place):
+                continue
+            net.remove_arc(arc)
+            helper_place_id = _unique_node_id(
+                net, create_silent_node_name(source.id, transition.id)
+            )
+            helper_place = net.add_element(Place.create(helper_place_id))
+            net.add_arc(source, helper_place)
+            net.add_arc(helper_place, transition)
+
+        outgoing_arcs = list(net.get_outgoing(transition.id))
+        for arc in outgoing_arcs:
+            target = net.get_element(arc.target)
+            if isinstance(target, Place):
+                continue
+            net.remove_arc(arc)
+            helper_place_id = _unique_node_id(
+                net, create_silent_node_name(transition.id, target.id)
+            )
+            helper_place = net.add_element(Place.create(helper_place_id))
+            net.add_arc(transition, helper_place)
+            net.add_arc(helper_place, target)
+
+def _validate_transition_connection_rules(net: Net):
+    """Validate transition-side structural constraints after normalization."""
+    for transition in net.transitions:
+        in_degree = net.get_in_degree(transition)
+        out_degree = net.get_out_degree(transition)
+
+        if in_degree < 1 or out_degree < 1:
+            raise InternalTransformationException(
+                f"Transition {transition.id} must have at least one incoming and one outgoing arc"
+            )
+
+        for arc in net.get_incoming(transition.id):
+            if not isinstance(net.get_element(arc.source), Place):
+                raise InternalTransformationException(
+                    f"Incoming arc of transition {transition.id} must originate from a place"
+                )
+
+        for arc in net.get_outgoing(transition.id):
+            if not isinstance(net.get_element(arc.target), Place):
+                raise InternalTransformationException(
+                    f"Outgoing arc of transition {transition.id} must target a place"
+                )
 
 
 def merge_single_triggers(net: Net):
@@ -214,6 +299,8 @@ def transform_bpmn_to_petrinet(
     # Post processing
     logger.debug("Starting post-processing")
     merge_single_triggers(net)
+    _normalize_transition_connections(net)
+    _validate_transition_connection_rules(net)
     logger.debug(
         "Transformation completed - Final net has %s places and %s transitions",
         len(net.places),
